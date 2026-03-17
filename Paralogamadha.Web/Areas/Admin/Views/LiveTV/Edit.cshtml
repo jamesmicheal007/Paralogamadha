@@ -1,0 +1,127 @@
+@* ============================================================
+   Areas/Admin/Views/LiveTV/Edit.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = (Model as LiveTVChannel)?.ChannelId > 0 ? "Edit Channel" : "Add Channel";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var ch = Model as LiveTVChannel ?? new LiveTVChannel { IsActive = true };
+}
+<div class="admin-breadcrumb"><a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><a href="/admin/livetvadmin">Live TV</a><span class="sep mx-2">/</span><span class="current">@ViewBag.Title</span></div>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-tv'></i>@ViewBag.Title</div></div>
+            <div class="panel-body">
+                @using (Html.BeginForm("Save", "LiveTVAdmin", new { area = "Admin" }, FormMethod.Post)) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ChannelId" value="@ch.ChannelId" />
+                    <div class="row g-3">
+                        <div class="col-md-8 form-group"><label class="admin-label">Channel Name <span class="required">*</span></label><input type="text" class="admin-input" name="ChannelName" value="@ch.ChannelName" required placeholder="e.g. Paralogamadha Basilica Live" /></div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Embed Type</label>
+                            <select class="admin-select" name="EmbedType">
+                                <option value="YouTube" @(ch.EmbedType=="YouTube"?"selected":"")>YouTube</option>
+                                <option value="HLS"     @(ch.EmbedType=="HLS"    ?"selected":"")>HLS Stream</option>
+                                <option value="RTMP"    @(ch.EmbedType=="RTMP"   ?"selected":"")>RTMP</option>
+                                <option value="Custom"  @(ch.EmbedType=="Custom" ?"selected":"")>Custom Embed</option>
+                            </select>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Stream URL / YouTube Channel URL <span class="required">*</span></label>
+                            <input type="text" class="admin-input" name="EmbedUrl" value="@ch.EmbedUrl" required
+                                   placeholder="https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID" />
+                            <div class="form-hint">For YouTube Live: use embed URL with ?channel=YOUR_CHANNEL_ID</div>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Sort Order</label>
+                            <input type="number" class="admin-input" name="SortOrder" value="@ch.SortOrder" min="0" />
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Active</label>
+                            <select class="admin-select" name="IsActive">
+                                <option value="true"  @(ch.IsActive ?"selected":"")>Active</option>
+                                <option value="false" @(!ch.IsActive?"selected":"")>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Currently Live?</label>
+                            <select class="admin-select" name="IsLive">
+                                <option value="false" @(!ch.IsLive?"selected":"")>Offline</option>
+                                <option value="true"  @(ch.IsLive ?"selected":"")>🔴 Live Now</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 mt-4"><button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save</button><a href="/admin/livetvadmin" class="btn btn-secondary">Cancel</a></div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* ============================================================
+   Areas/Admin/Views/LiveTV/Index.cshtml
+   ============================================================ *@
+@*
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Live TV";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var channels = Model as IEnumerable<LiveTVChannel> ?? Enumerable.Empty<LiveTVChannel>();
+}
+<div class="admin-breadcrumb"><a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><span class="current">Live TV</span></div>
+<div class="admin-panel">
+    <div class="panel-header"><div class="panel-title"><i class='bx bx-tv'></i>Live TV Channels</div><a href="/admin/livetvadmin/create" class="btn-admin-primary"><i class='bx bx-plus'></i>Add Channel</a></div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead><tr><th>Channel</th><th>Type</th><th>Live</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach(var c in channels){
+                <tr>
+                    <td style="font-weight:600">@c.ChannelName</td>
+                    <td><span class="status-badge badge-active">@c.EmbedType</span></td>
+                    <td><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input" role="switch" @(c.IsLive?"checked":"") data-ajax-toggle="/admin/livetvadmin/togglelive" data-field="isLive" data-id="@c.ChannelId" /></div></td>
+                    <td><span class="status-badge @(c.IsActive?"badge-approved":"badge-rejected")">@(c.IsActive?"Active":"Inactive")</span></td>
+                    <td><div class="td-actions"><a href="/admin/livetvadmin/edit/@c.ChannelId" class="btn-admin-edit"><i class='bx bx-edit'></i>Edit</a></div></td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+*@
+
+
+@* ============================================================
+   Areas/Admin/Views/Songs/Index.cshtml
+   ============================================================ *@
+@*
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Songs";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var songs = Model as IEnumerable<Song> ?? Enumerable.Empty<Song>();
+}
+<div class="admin-breadcrumb"><a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><span class="current">Songs</span></div>
+<div class="admin-panel">
+    <div class="panel-header"><div class="panel-title"><i class='bx bx-music'></i>Songs</div><a href="/admin/songsadmin/create" class="btn-admin-primary"><i class='bx bx-plus'></i>Add Song</a></div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead><tr><th>Title</th><th>Category</th><th>Duration</th><th>Audio</th><th>Published</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach(var s in songs){
+                <tr>
+                    <td style="font-weight:600">@s.Title</td>
+                    <td><span class="status-badge badge-active">@s.CategoryName</span></td>
+                    <td style="font-size:.82rem">@(s.Duration.HasValue ? TimeSpan.FromSeconds(s.Duration.Value).ToString(@"mm\:ss") : "—")</td>
+                    <td>@(string.IsNullOrEmpty(s.AudioFileUrl)?<span style="color:var(--admin-muted)">No audio</span>:<span style="color:var(--admin-success)"><i class='bx bx-check-circle'></i></span>)</td>
+                    <td><span class="status-badge @(s.IsPublished?"badge-approved":"badge-rejected")">@(s.IsPublished?"Published":"Draft")</span></td>
+                    <td><div class="td-actions"><a href="/admin/songsadmin/edit/@s.SongId" class="btn-admin-edit"><i class='bx bx-edit'></i>Edit</a><button class="btn-admin-delete" data-ajax-delete="/admin/songsadmin/delete?id=@s.SongId" data-label="song '@s.Title'"><i class='bx bx-trash'></i></button></div></td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+*@

@@ -1,0 +1,143 @@
+@* ============================================================
+   Paralogamadha.Web / Views / Shared / _AdminLayout.cshtml
+   ============================================================ *@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>@ViewBag.Title — Paralogamadha Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+    @Styles.Render("~/bundles/css/admin")
+</head>
+<body class="pbl-admin">
+
+    @* ── Sidebar ─────────────────────────────────────────── *@
+    <nav class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">✝</div>
+            <div class="sidebar-brand">
+                <span class="brand-name">Paralogamadha</span>
+                <span class="brand-sub">Admin Panel</span>
+            </div>
+            <button class="sidebar-toggle d-lg-none" id="sidebarClose">
+                <i class='bx bx-x'></i>
+            </button>
+        </div>
+
+        @{
+            var stats = ViewBag.DashboardStats as Paralogamadha.Core.Models.DashboardStats;
+            var active = ViewBag.ActiveModule as string ?? "";
+        }
+
+        <div class="sidebar-menu">
+            <div class="menu-label">Overview</div>
+            <a href="/admin/dashboard" class="menu-item @(active=="dashboard"?"active":"")">
+                <i class='bx bxs-dashboard'></i><span>Dashboard</span>
+            </a>
+
+            <div class="menu-label mt-2">Content</div>
+            <a href="/admin/heroslideadmin" class="menu-item @(active=="heroslideadmin"?"active":"")">
+                <i class='bx bx-images'></i><span>Hero Slides</span>
+            </a>
+            <a href="/admin/announcementadmin" class="menu-item @(active=="announcementadmin"?"active":"")">
+                <i class='bx bx-bell'></i><span>Announcements</span>
+            </a>
+            <a href="/admin/masstimingadmin" class="menu-item @(active=="masstimingadmin"?"active":"")">
+                <i class='bx bx-time'></i><span>Mass Timing</span>
+            </a>
+            <a href="/admin/dailycontentadmin/feast" class="menu-item @(active=="dailycontentadmin"?"active":"")">
+                <i class='bx bx-sun'></i><span>Daily Content</span>
+            </a>
+            <a href="/admin/priestadmin" class="menu-item @(active=="priestadmin"?"active":"")">
+                <i class='bx bx-user'></i><span>Priests</span>
+            </a>
+
+            <div class="menu-label mt-2">Community</div>
+            <a href="/admin/prayerrequestadmin" class="menu-item @(active=="prayerrequestadmin"?"active":"")">
+                <i class='bx bx-heart'></i>
+                <span>Prayer Requests</span>
+                @if (stats?.PendingPrayers > 0) {
+                    <span class="menu-badge">@stats.PendingPrayers</span>
+                }
+            </a>
+            <a href="/admin/testimonialadmin" class="menu-item @(active=="testimonialadmin"?"active":"")">
+                <i class='bx bx-star'></i>
+                <span>Testimonials</span>
+                @if (stats?.PendingTestimonials > 0) {
+                    <span class="menu-badge">@stats.PendingTestimonials</span>
+                }
+            </a>
+
+            <div class="menu-label mt-2">Media</div>
+            <a href="/admin/galleryadmin" class="menu-item @(active=="galleryadmin"?"active":"")">
+                <i class='bx bx-photo-album'></i><span>Gallery</span>
+            </a>
+
+            <div class="menu-label mt-2">Operations</div>
+            <a href="/admin/roombookingadmin" class="menu-item @(active=="roombookingadmin"?"active":"")">
+                <i class='bx bx-calendar'></i>
+                <span>Room Bookings</span>
+                @if (stats?.PendingBookings > 0) {
+                    <span class="menu-badge">@stats.PendingBookings</span>
+                }
+            </a>
+
+            <div class="menu-label mt-2">System</div>
+            <a href="/admin/useradmin" class="menu-item @(active=="useradmin"?"active":"")">
+                <i class='bx bx-group'></i><span>Users</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="/admin/adminaccount/logout" class="menu-item text-danger">
+                <i class='bx bx-log-out'></i><span>Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    @* ── Main Content ─────────────────────────────────────── *@
+    <div class="admin-main" id="adminMain">
+        @* Top Bar *@
+        <div class="admin-topbar">
+            <button class="sidebar-toggle-btn" id="sidebarToggle">
+                <i class='bx bx-menu'></i>
+            </button>
+            <div class="topbar-title">@(ViewBag.Title ?? "Admin Panel")</div>
+            <div class="topbar-actions ms-auto d-flex align-items-center gap-3">
+                @if (TempData["Success"] != null) {
+                    <span class="badge bg-success px-3 py-2">
+                        <i class='bx bx-check me-1'></i>@TempData["Success"]
+                    </span>
+                }
+                <div class="topbar-user">
+                    <div class="user-avatar">
+                        <i class='bx bx-user'></i>
+                    </div>
+                    <span class="user-name d-none d-md-inline">@User.Identity.Name</span>
+                </div>
+            </div>
+        </div>
+
+        @* Page Content *@
+        <div class="admin-content">
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    @Scripts.Render("~/bundles/js/admin")
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

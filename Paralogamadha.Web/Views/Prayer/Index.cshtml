@@ -1,0 +1,159 @@
+@* ============================================================
+   Views/Prayer/Index.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Prayer Request";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var antiForgery = Html.AntiForgeryToken().ToString();
+}
+
+@* ── Hero ─────────────────────────────────────────────────── *@
+<section class="prayer-hero">
+    <div class="container-fluid px-lg-5">
+        <div class="pbl-breadcrumb">
+            <a href="/@ViewBag.CurrentLang/home">Home</a>
+            <span class="separator">/</span>
+            <span class="current">Prayer Request</span>
+        </div>
+        <div class="row align-items-center mt-3">
+            <div class="col-md-8" data-aos="fade-right">
+                <div class="eyebrow text-gold mb-2" style="color:var(--gold-light);font-size:.78rem;letter-spacing:.15em;font-weight:700;text-transform:uppercase">Community Prayer</div>
+                <h1 class="display-5 fw-bold text-white mb-3">Submit a Prayer Request</h1>
+                <p class="text-white" style="opacity:.8;max-width:500px">
+                    Share your intentions with our parish community. Our priests and parishioners will pray for your needs.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pb-5" style="background:var(--sky)">
+    <div class="container-fluid px-lg-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <div class="prayer-form-card" data-aos="fade-up">
+
+                    @* Success state *@
+                    <div id="prayerSuccess" class="form-success-state">
+                        <div class="success-icon"><i class='bx bx-heart'></i></div>
+                        <h4 class="text-navy mb-2">Prayer Request Received</h4>
+                        <p class="text-muted mb-4">
+                            Your prayer intention has been submitted. Our community will hold you in prayer.
+                            <em>"Ask, and it will be given to you; seek, and you will find."</em> — Matthew 7:7
+                        </p>
+                        <a href="/@ViewBag.CurrentLang/home" class="btn-pbl-navy">Return Home</a>
+                    </div>
+
+                    @* Prayer Form *@
+                    <form id="prayerForm" action="/@ViewBag.CurrentLang/prayer/submit" method="post" novalidate>
+                        @Html.Raw(antiForgery)
+
+                        <h4 class="mb-1 text-navy">Your Prayer Request</h4>
+                        <p class="text-muted mb-4" style="font-size:.9rem">
+                            All information is kept confidential. Fields marked * are required.
+                        </p>
+
+                        @* Category *@
+                        <div class="form-group">
+                            <label class="pbl-label">Prayer Category *</label>
+                            <input type="hidden" id="PrayerCategory" name="PrayerCategory" required />
+                            <div class="prayer-category-grid">
+                                <button type="button" class="prayer-category-btn" data-category="Healing">
+                                    <i class='bx bx-plus-medical'></i>Healing
+                                </button>
+                                <button type="button" class="prayer-category-btn" data-category="Family">
+                                    <i class='bx bx-home-heart'></i>Family
+                                </button>
+                                <button type="button" class="prayer-category-btn" data-category="Work">
+                                    <i class='bx bx-briefcase'></i>Work
+                                </button>
+                                <button type="button" class="prayer-category-btn" data-category="Peace">
+                                    <i class='bx bx-peace'></i>Peace
+                                </button>
+                                <button type="button" class="prayer-category-btn" data-category="Gratitude">
+                                    <i class='bx bx-trophy'></i>Gratitude
+                                </button>
+                                <button type="button" class="prayer-category-btn" data-category="Other">
+                                    <i class='bx bx-dots-horizontal'></i>Other
+                                </button>
+                            </div>
+                        </div>
+
+                        @* Name & Email row *@
+                        <div class="row g-3">
+                            <div class="col-md-6 form-group">
+                                <label class="pbl-label" for="FullName">Full Name *</label>
+                                <input type="text" class="pbl-input" id="FullName" name="FullName"
+                                       placeholder="Your name" required autocomplete="name" />
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="pbl-label" for="Email">Email Address</label>
+                                <input type="email" class="pbl-input" id="Email" name="Email"
+                                       placeholder="you@example.com" autocomplete="email" />
+                            </div>
+                        </div>
+
+                        @* Phone *@
+                        <div class="form-group">
+                            <label class="pbl-label" for="Phone">Phone Number</label>
+                            <input type="tel" class="pbl-input" id="Phone" name="Phone"
+                                   placeholder="+91 XXXXX XXXXX" autocomplete="tel" />
+                        </div>
+
+                        @* Prayer Text *@
+                        <div class="form-group">
+                            <label class="pbl-label" for="PrayerText">Your Prayer Request *</label>
+                            <textarea class="pbl-input" id="PrayerText" name="PrayerText"
+                                      rows="5" placeholder="Please share your prayer intention here…"
+                                      required style="resize:vertical"></textarea>
+                        </div>
+
+                        @* Anonymous toggle *@
+                        <div class="form-group d-flex align-items-center gap-3 p-3"
+                             style="background:var(--sky);border-radius:var(--radius-card)">
+                            <div class="form-check form-switch mb-0">
+                                <input type="checkbox" class="form-check-input" role="switch"
+                                       id="IsAnonymous" name="IsAnonymous" value="true" />
+                                <input type="hidden" name="IsAnonymous" value="false" />
+                            </div>
+                            <label for="IsAnonymous" class="mb-0" style="cursor:pointer">
+                                <strong style="font-size:.9rem">Keep my name anonymous</strong>
+                                <div style="font-size:.8rem;color:var(--muted)">Your name will not be shared publicly</div>
+                            </label>
+                        </div>
+
+                        @* Scripture quote *@
+                        <blockquote class="my-4 p-3" style="border-left:3px solid var(--gold);background:var(--gold-pale);border-radius:0 8px 8px 0;font-style:italic;font-size:.9rem;color:var(--muted)">
+                            "Do not be anxious about anything, but in every situation, by prayer and petition,
+                            with thanksgiving, present your requests to God." — Philippians 4:6
+                        </blockquote>
+
+                        <button type="submit" class="btn-pbl-navy ripple w-100" style="padding:14px">
+                            <i class='bx bx-send me-2'></i>Submit Prayer Request
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            @* Side info *@
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="p-4 rounded-3 text-white mb-3" style="background:var(--navy)" data-aos="fade-left">
+                    <div style="font-size:2rem;margin-bottom:12px">✝</div>
+                    <h5 class="mb-2">Our Promise to You</h5>
+                    <p style="opacity:.8;font-size:.9rem;line-height:1.7">
+                        Every prayer request submitted is reviewed by our parish priests and included in our daily intercession prayers.
+                    </p>
+                </div>
+                <div class="pbl-card p-4" data-aos="fade-left" data-aos-delay="100">
+                    <h6 class="text-navy mb-3"><i class='bx bx-time-five me-2 text-gold'></i>Mass Timing Reminder</h6>
+                    <p class="text-muted" style="font-size:.88rem">
+                        You can also attend Mass in person to pray with our community.
+                    </p>
+                    <a href="/@ViewBag.CurrentLang/masstiming" class="btn-pbl-outline mt-2 d-block text-center" style="padding:8px">
+                        View Mass Timings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

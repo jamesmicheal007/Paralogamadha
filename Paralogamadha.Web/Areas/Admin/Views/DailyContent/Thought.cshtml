@@ -1,0 +1,115 @@
+@* ============================================================
+   Areas/Admin/Views/DailyContent/Thought.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Thought of the Day";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var thought = Model as ThoughtOfDay ?? new ThoughtOfDay { ThoughtDate = DateTime.Today };
+    var langs   = ViewBag.Languages as IEnumerable<Language>;
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Thought of the Day</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class='bx bx-bulb'></i>Thought of the Day</div>
+                <input type="date" class="admin-input" style="width:auto;padding:6px 12px"
+                       value="@thought.ThoughtDate.ToString("yyyy-MM-dd")"
+                       onchange="window.location='/admin/dailycontentadmin/thought?date='+this.value" />
+            </div>
+            <div class="panel-body">
+                @using (Html.BeginForm("SaveThought", "DailyContentAdmin", new { area = "Admin" }, FormMethod.Post, new { enctype = "multipart/form-data" })) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ThoughtId"   value="@thought.ThoughtId" />
+                    <input type="hidden" name="ThoughtDate" value="@thought.ThoughtDate.ToString("yyyy-MM-dd")" />
+
+                    <div class="row g-3">
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Quote / Thought <span class="required">*</span></label>
+                            <textarea class="admin-input" name="Quote" rows="4" required
+                                      placeholder="Enter today's inspirational thought or scripture…"
+                                      style="font-family:'Playfair Display',serif;font-size:1rem;line-height:1.8">@thought.Quote</textarea>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Attribution</label>
+                            <input type="text" class="admin-input" name="Attribution" value="@thought.Attribution"
+                                   placeholder="e.g. Pope Francis, Matthew 5:9, St. Teresa" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Language</label>
+                            <select class="admin-select" name="LanguageId">
+                                @if (langs != null) {
+                                    foreach (var l in langs) {
+                                        <option value="@l.LanguageId" @(thought.LanguageId==l.LanguageId?"selected":"")>@l.DisplayName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Background Image (optional)</label>
+                            <div class="img-upload-wrap">
+                                <input type="file" name="BgImage" accept="image/jpeg,image/png,image/webp" />
+                                <div class="img-upload-icon"><i class='bx bx-image'></i></div>
+                                <div class="img-upload-text">
+                                    <strong>Upload background</strong> — Landscape image recommended (1920×600px)
+                                </div>
+                                <img class="img-preview" src="@thought.BackgroundImageUrl" alt=""
+                                     @(!string.IsNullOrEmpty(thought.BackgroundImageUrl) ? "style='display:block'" : "") />
+                            </div>
+                            @if (thought.ThoughtId > 0 && !string.IsNullOrEmpty(thought.BackgroundImageUrl)) {
+                                <input type="hidden" name="BackgroundImageUrl" value="@thought.BackgroundImageUrl" />
+                                <div class="form-hint">Current: @thought.BackgroundImageUrl</div>
+                            }
+                        </div>
+                    </div>
+
+                    @* Live preview card *@
+                    @if (!string.IsNullOrEmpty(thought.Quote)) {
+                    <div class="mt-4 p-4 rounded-3"
+                         style="background:linear-gradient(135deg,#1B2A5B,#2a3f7e);color:#fff;position:relative;overflow:hidden">
+                        <div style="font-size:3rem;opacity:.08;position:absolute;top:10px;right:20px">✝</div>
+                        <div style="font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:10px">Thought of the Day</div>
+                        <blockquote style="font-family:'Playfair Display',serif;font-size:1.1rem;font-style:italic;line-height:1.7;color:rgba(255,255,255,.9);margin:0 0 10px">
+                            "@thought.Quote"
+                        </blockquote>
+                        @if (!string.IsNullOrEmpty(thought.Attribution)) {
+                            <cite style="font-size:.82rem;color:var(--gold-light)">— @thought.Attribution</cite>
+                        }
+                    </div>
+                    }
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save Thought</button>
+                        <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-link-alt'></i>Other Daily Content</div></div>
+            <div class="panel-body p-3 d-grid gap-2">
+                <a href="/admin/dailycontentadmin/feast"   class="btn-admin-primary"><i class='bx bx-sun'></i>Manage Feast</a>
+                <a href="/admin/dailycontentadmin/reading" class="btn-admin-gold"><i class='bx bx-book-open'></i>Manage Reading</a>
+            </div>
+        </div>
+        <div class="admin-panel mt-3">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-info-circle'></i>Tips</div></div>
+            <div class="panel-body p-3">
+                <ul style="padding-left:16px;font-size:.82rem;color:var(--admin-muted);line-height:1.9">
+                    <li>Quotes from Scripture, saints, or popes work best</li>
+                    <li>Keep quotes concise — under 150 words</li>
+                    <li>Background image is optional — a gradient is used otherwise</li>
+                    <li>You can schedule multiple days in advance</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

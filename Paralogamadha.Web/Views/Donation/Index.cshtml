@@ -1,0 +1,359 @@
+@* ============================================================
+   Views/Donation/Index.cshtml — Razorpay Donation
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Donate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories    = ViewBag.Categories  as IEnumerable<DonationCategory>;
+    var razorpayKeyId = ViewBag.RazorpayKey as string ?? "";
+    var antiForgery   = Html.AntiForgeryToken().ToString();
+}
+
+<section class="prayer-hero">
+    <div class="container-fluid px-lg-5">
+        <div class="pbl-breadcrumb"><a href="/@ViewBag.CurrentLang/home">Home</a><span class="separator">/</span><span class="current">Donate</span></div>
+        <div class="row align-items-center mt-3">
+            <div class="col-md-8" data-aos="fade-right">
+                <div class="eyebrow mb-2" style="color:var(--gold-light);font-size:.78rem;letter-spacing:.15em;font-weight:700;text-transform:uppercase">Support the Basilica</div>
+                <h1 class="display-5 fw-bold text-white mb-3">Make a Donation</h1>
+                <p class="text-white" style="opacity:.8;max-width:500px">Your generosity helps maintain this sacred place, support community programs, and spread the faith.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pb-5" style="background:var(--sky)">
+    <div class="container-fluid px-lg-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-xl-6">
+                @* Success State *@
+                <div id="donationSuccess" class="prayer-form-card form-success-state" style="display:none">
+                    <div class="success-icon" style="background:#dcfce7"><i class='bx bx-donate-heart' style="color:#16a34a"></i></div>
+                    <h4 class="text-navy mb-2">Thank You for Your Generosity!</h4>
+                    <p class="text-muted mb-2">Transaction ID: <strong id="txnId" class="text-navy"></strong></p>
+                    <p class="text-muted mb-4">A receipt has been sent to your email. May God bless you abundantly.</p>
+                    <a href="/@ViewBag.CurrentLang/home" class="btn-pbl-navy">Return Home</a>
+                </div>
+
+                <div id="donationForm" class="prayer-form-card" data-aos="fade-up">
+                    @* Step Indicator *@
+                    <div class="step-indicator mb-5">
+                        <div class="step-dot active" id="step-dot-0">1</div>
+                        <div class="step-line" id="step-line-0"></div>
+                        <div class="step-dot" id="step-dot-1">2</div>
+                        <div class="step-line" id="step-line-1"></div>
+                        <div class="step-dot" id="step-dot-2">3</div>
+                    </div>
+
+                    @* Step 0 — Amount *@
+                    <div class="donation-step active" id="donation-step-0">
+                        <h5 class="text-navy mb-4"><i class='bx bx-rupee me-2 text-gold'></i>Choose Amount</h5>
+
+                        @* Category *@
+                        <div class="form-group mb-4">
+                            <label class="pbl-label">Donation For</label>
+                            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+                                @if (categories != null) {
+                                    foreach (var cat in categories) {
+                                    <label style="display:flex;align-items:center;gap:10px;border:2px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all .25s" class="cat-label">
+                                        <input type="radio" name="CategoryId" value="@cat.CategoryId" style="accent-color:var(--navy)" required />
+                                        <div>
+                                            <div style="font-weight:600;font-size:.9rem;color:var(--navy)">@cat.CategoryName</div>
+                                            @if (!string.IsNullOrEmpty(cat.Description)) {
+                                                <div style="font-size:.75rem;color:var(--muted)">@cat.Description</div>
+                                            }
+                                        </div>
+                                    </label>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        @* Amount presets *@
+                        <div class="form-group">
+                            <label class="pbl-label">Amount (₹)</label>
+                            <div class="donation-amount-grid">
+                                <button type="button" class="amount-btn" data-amount="101">₹101</button>
+                                <button type="button" class="amount-btn" data-amount="251">₹251</button>
+                                <button type="button" class="amount-btn" data-amount="501">₹501</button>
+                                <button type="button" class="amount-btn" data-amount="1001">₹1,001</button>
+                                <button type="button" class="amount-btn" data-amount="2501">₹2,501</button>
+                                <button type="button" class="amount-btn custom">Custom</button>
+                            </div>
+                            <input type="number" class="pbl-input mt-2" id="donationAmount" placeholder="Enter amount in ₹"
+                                   min="10" step="1" required style="display:none" />
+                            <input type="hidden" id="selectedAmount" />
+                        </div>
+
+                        <button type="button" class="btn-pbl-navy ripple w-100 mt-4" style="padding:13px" onclick="nextDonationStep()">
+                            Next <i class='bx bx-right-arrow-alt ms-2'></i>
+                        </button>
+                    </div>
+
+                    @* Step 1 — Donor Details *@
+                    <div class="donation-step" id="donation-step-1">
+                        <h5 class="text-navy mb-4"><i class='bx bx-user me-2 text-gold'></i>Your Details</h5>
+                        <div class="row g-3">
+                            <div class="col-12 form-group">
+                                <label class="pbl-label" for="DonorName">Full Name *</label>
+                                <input type="text" class="pbl-input" id="DonorName" placeholder="Your full name" required autocomplete="name" />
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="pbl-label" for="DonorEmail">Email</label>
+                                <input type="email" class="pbl-input" id="DonorEmail" placeholder="For receipt" autocomplete="email" />
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="pbl-label" for="DonorPhone">Phone</label>
+                                <input type="tel" class="pbl-input" id="DonorPhone" placeholder="+91 XXXXX XXXXX" autocomplete="tel" />
+                            </div>
+                            <div class="col-12 form-group">
+                                <div class="d-flex align-items-center gap-3 p-3" style="background:var(--sky);border-radius:10px">
+                                    <input type="checkbox" id="IsAnonymous" style="accent-color:var(--navy);width:16px;height:16px" />
+                                    <label for="IsAnonymous" style="cursor:pointer;margin:0">
+                                        <div style="font-weight:600;font-size:.9rem">Donate anonymously</div>
+                                        <div style="font-size:.78rem;color:var(--muted)">Your name will not be listed publicly</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="button" class="btn-pbl-outline" style="padding:12px 24px" onclick="prevDonationStep()">
+                                <i class='bx bx-left-arrow-alt me-2'></i>Back
+                            </button>
+                            <button type="button" class="btn-pbl-navy ripple flex-grow-1" style="padding:13px" onclick="nextDonationStep()">
+                                Next <i class='bx bx-right-arrow-alt ms-2'></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    @* Step 2 — Review & Pay *@
+                    <div class="donation-step" id="donation-step-2">
+                        <h5 class="text-navy mb-4"><i class='bx bx-check-shield me-2 text-gold'></i>Review &amp; Pay</h5>
+
+                        <div class="p-4 rounded-3 mb-4" style="background:var(--sky);border:1px solid var(--border)">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span style="color:var(--muted);font-size:.9rem">Donation For</span>
+                                <strong id="review-category" class="text-navy">—</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span style="color:var(--muted);font-size:.9rem">Donor</span>
+                                <strong id="review-name" class="text-navy">—</strong>
+                            </div>
+                            <hr style="border-color:var(--border)" />
+                            <div class="d-flex justify-content-between">
+                                <span style="font-weight:700;font-size:1rem">Total Amount</span>
+                                <strong id="review-amount" class="text-gold" style="font-size:1.3rem;font-family:var(--font-serif)">₹0</strong>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2 mb-4 p-3" style="background:#f0fdf4;border-radius:10px;font-size:.82rem;color:#166534">
+                            <i class='bx bx-lock-alt' style="font-size:1.1rem"></i>
+                            Secure payment powered by Razorpay. Your card details are never stored on our servers.
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="button" class="btn-pbl-outline" style="padding:12px 24px" onclick="prevDonationStep()">
+                                <i class='bx bx-left-arrow-alt me-2'></i>Back
+                            </button>
+                            <button type="button" id="payNowBtn" class="btn-pbl-gold ripple flex-grow-1" style="padding:13px" onclick="initRazorpay()">
+                                <i class='bx bx-credit-card me-2'></i>Pay Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Trust indicators *@
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="pbl-card p-4 mb-3" data-aos="fade-left">
+                    <h6 class="text-navy mb-3"><i class='bx bx-shield-check me-2 text-gold'></i>Safe &amp; Secure</h6>
+                    <p class="text-muted" style="font-size:.88rem">All transactions are encrypted and processed by Razorpay, India's trusted payment gateway.</p>
+                    <div class="d-flex gap-2 mt-3 flex-wrap">
+                        <span style="background:var(--sky);color:var(--navy);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:4px">UPI</span>
+                        <span style="background:var(--sky);color:var(--navy);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:4px">Credit Card</span>
+                        <span style="background:var(--sky);color:var(--navy);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:4px">Debit Card</span>
+                        <span style="background:var(--sky);color:var(--navy);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:4px">Net Banking</span>
+                    </div>
+                </div>
+                <div class="pbl-card p-4" data-aos="fade-left" data-aos-delay="100">
+                    <div style="font-size:2rem;margin-bottom:8px">✝</div>
+                    <blockquote style="font-style:italic;font-size:.9rem;color:var(--muted);border-left:3px solid var(--gold);padding-left:12px;margin:0">
+                        "Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver."<br/>
+                        <cite style="font-size:.78rem;font-weight:700;color:var(--navy)">— 2 Corinthians 9:7</cite>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+@Html.Raw(antiForgery)
+<script>
+(function(){
+    const RAZORPAY_KEY = '@razorpayKeyId';
+    let orderId = null;
+    let donationId = null;
+
+    // Show/hide custom amount input
+    document.querySelectorAll('.amount-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            const amtInput = document.getElementById('donationAmount');
+            if (btn.classList.contains('custom')) {
+                amtInput.style.display = 'block';
+                amtInput.value = '';
+                amtInput.focus();
+                document.getElementById('selectedAmount').value = '';
+            } else {
+                amtInput.style.display = 'none';
+                document.getElementById('selectedAmount').value = btn.dataset.amount;
+            }
+        });
+    });
+
+    document.getElementById('donationAmount')?.addEventListener('input', function() {
+        document.getElementById('selectedAmount').value = this.value;
+    });
+
+    // Category label highlight
+    document.querySelectorAll('.cat-label').forEach(label => {
+        label.querySelector('input')?.addEventListener('change', function() {
+            document.querySelectorAll('.cat-label').forEach(l => l.style.borderColor = '');
+            label.style.borderColor = 'var(--navy)';
+            label.style.background  = 'var(--sky)';
+        });
+    });
+
+    // Step navigation — override global
+    window.nextDonationStep = function() {
+        const steps   = document.querySelectorAll('.donation-step');
+        const current = Array.from(steps).findIndex(s => s.classList.contains('active'));
+        if (!validateCurrentStep(current)) return;
+        if (current < steps.length - 1) {
+            steps[current].classList.remove('active');
+            steps[current + 1].classList.add('active');
+            updateStepDots(current + 1);
+            if (current + 1 === 2) populateReview();
+        }
+    };
+    window.prevDonationStep = function() {
+        const steps   = document.querySelectorAll('.donation-step');
+        const current = Array.from(steps).findIndex(s => s.classList.contains('active'));
+        if (current > 0) {
+            steps[current].classList.remove('active');
+            steps[current - 1].classList.add('active');
+            updateStepDots(current - 1);
+        }
+    };
+
+    function updateStepDots(active) {
+        document.querySelectorAll('.step-dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === active);
+            dot.classList.toggle('done', i < active);
+            if (i < active) dot.innerHTML = '<i class="bx bx-check"></i>';
+        });
+        document.querySelectorAll('.step-line').forEach((line, i) => {
+            line.classList.toggle('done', i < active);
+        });
+    }
+
+    function validateCurrentStep(step) {
+        if (step === 0) {
+            const amt = document.getElementById('selectedAmount').value;
+            const cat = document.querySelector('input[name="CategoryId"]:checked');
+            if (!cat) { showToast('warning','Selection needed','Please choose a donation category.'); return false; }
+            if (!amt || parseFloat(amt) < 10) { showToast('warning','Amount needed','Please select or enter a donation amount (minimum ₹10).'); return false; }
+        }
+        if (step === 1) {
+            const name = document.getElementById('DonorName').value.trim();
+            if (!name) { document.getElementById('DonorName').classList.add('is-error'); showToast('warning','Name required','Please enter your name.'); return false; }
+        }
+        return true;
+    }
+
+    function populateReview() {
+        const catLabel = document.querySelector('input[name="CategoryId"]:checked')?.closest('.cat-label')?.querySelector('div div')?.textContent;
+        const name     = document.getElementById('DonorName').value;
+        const amount   = document.getElementById('selectedAmount').value;
+        document.getElementById('review-category').textContent = catLabel || '—';
+        document.getElementById('review-name').textContent     = name || 'Anonymous';
+        document.getElementById('review-amount').textContent   = '₹' + parseFloat(amount).toLocaleString('en-IN');
+    }
+
+    window.initRazorpay = async function() {
+        const btn  = document.getElementById('payNowBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="pbl-spinner pbl-spinner-sm"></span> Processing…';
+
+        const payload = {
+            CategoryId:  document.querySelector('input[name="CategoryId"]:checked')?.value,
+            Amount:      document.getElementById('selectedAmount').value,
+            DonorName:   document.getElementById('DonorName').value,
+            Email:       document.getElementById('DonorEmail').value,
+            Phone:       document.getElementById('DonorPhone').value,
+            IsAnonymous: document.getElementById('IsAnonymous').checked,
+            __RequestVerificationToken: document.querySelector('[name="__RequestVerificationToken"]')?.value
+        };
+
+        try {
+            const res  = await fetch('/@ViewBag.CurrentLang/donation/createorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(payload)
+            });
+            const json = await res.json();
+            if (!json.success) { showToast('error','Error', json.message); return; }
+
+            orderId    = json.data.orderId;
+            donationId = json.data.donationId;
+
+            const options = {
+                key:         RAZORPAY_KEY,
+                amount:      json.data.amountPaise,
+                currency:    'INR',
+                name:        'Paralogamadha Basilica',
+                description: 'Donation',
+                order_id:    orderId,
+                prefill:     { name: payload.DonorName, email: payload.Email, contact: payload.Phone },
+                theme:       { color: '#1B2A5B' },
+                handler: async function(response) {
+                    const verifyRes = await fetch('/@ViewBag.CurrentLang/donation/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({
+                            donationId:           donationId,
+                            razorpayPaymentId:    response.razorpay_payment_id,
+                            razorpayOrderId:      response.razorpay_order_id,
+                            razorpaySignature:    response.razorpay_signature,
+                            __RequestVerificationToken: payload.__RequestVerificationToken
+                        })
+                    });
+                    const vJson = await verifyRes.json();
+                    if (vJson.success) {
+                        document.getElementById('txnId').textContent = response.razorpay_payment_id;
+                        document.getElementById('donationForm').style.display  = 'none';
+                        document.getElementById('donationSuccess').style.display = 'block';
+                    } else {
+                        showToast('error', 'Verification Failed', vJson.message);
+                    }
+                },
+                modal: { ondismiss: () => { btn.disabled = false; btn.innerHTML = '<i class="bx bx-credit-card me-2"></i>Pay Now'; } }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', () => showToast('error','Payment Failed','Please try again.'));
+            rzp.open();
+        } catch (err) {
+            showToast('error','Error','Something went wrong. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bx bx-credit-card me-2"></i>Pay Now';
+        }
+    };
+})();
+</script>
+}

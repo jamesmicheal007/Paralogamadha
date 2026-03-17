@@ -1,0 +1,60 @@
+@* ============================================================
+   Areas/Admin/Views/HeroSlides/Index.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Hero Slides";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var slides = Model as IEnumerable<Paralogamadha.Core.Models.HeroSlide>;
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Hero Slides</span>
+</div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-images'></i>Hero Slides</div>
+        <a href="/admin/heroslideadmin/create" class="btn-admin-primary"><i class='bx bx-plus'></i>Add Slide</a>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead><tr><th>Order</th><th>Preview</th><th>Title</th><th>Language</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                @if (slides != null) {
+                    foreach (var s in slides) {
+                    <tr>
+                        <td><span class="drag-handle" style="cursor:grab;font-size:1.2rem;color:var(--admin-muted)">⠿</span> @s.SortOrder</td>
+                        <td>
+                            <div style="width:80px;height:50px;border-radius:6px;overflow:hidden;background:var(--admin-bg)">
+                                <img src="@s.BackgroundImageUrl" alt="" style="width:100%;height:100%;object-fit:cover" loading="lazy" />
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight:600">@s.Title</div>
+                            @if (!string.IsNullOrEmpty(s.SubTitle)) {
+                                <div style="font-size:.78rem;color:var(--admin-muted)">@(s.SubTitle.Length>60?s.SubTitle.Substring(0,60)+"…":s.SubTitle)</div>
+                            }
+                        </td>
+                        <td><span class="status-badge badge-active">@s.LanguageName</span></td>
+                        <td>
+                            <span class="status-badge @(s.IsActive?"badge-approved":"badge-rejected")">
+                                @(s.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="td-actions">
+                                <a href="/admin/heroslideadmin/edit/@s.SlideId" class="btn-admin-edit"><i class='bx bx-edit'></i>Edit</a>
+                                <button class="btn-admin-delete"
+                                        data-ajax-delete="/admin/heroslideadmin/delete?id=@s.SlideId"
+                                        data-label="slide '@s.Title'">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,60 @@
+@* ============================================================
+   Areas/Admin/Views/Testimonials/Index.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Testimonials";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var testimonials = Model as IEnumerable<Testimonial> ?? Enumerable.Empty<Testimonial>();
+    var antiForgery  = Html.AntiForgeryToken().ToString();
+}
+<div class="admin-breadcrumb"><a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><span class="current">Testimonials</span></div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-star'></i>Testimonials</div>
+        <div class="d-flex gap-2">
+            <a href="?status=" class="filter-chip @(Request.QueryString["status"]==""?"active":"")">All</a>
+            <a href="?status=1" class="filter-chip @(Request.QueryString["status"]=="1"?"active":"")">Pending</a>
+            <a href="?status=2" class="filter-chip @(Request.QueryString["status"]=="2"?"active":"")">Approved</a>
+        </div>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead><tr><th>Author</th><th>Rating</th><th>Testimonial</th><th>Submitted</th><th>Status</th><th>Featured</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var t in testimonials) {
+                <tr>
+                    <td>
+                        <div style="font-weight:600">@t.AuthorName</div>
+                        @if(!string.IsNullOrEmpty(t.AuthorLocation)){<div style="font-size:.75rem;color:var(--admin-muted)">@t.AuthorLocation</div>}
+                    </td>
+                    <td>
+                        @for(int i=1;i<=5;i++){<i class="bx @(i<=t.Rating?"bxs-star":"bx-star") @(i<=t.Rating?"text-warning":"text-muted")" style="font-size:.85rem"></i>}
+                    </td>
+                    <td style="max-width:240px;font-size:.82rem">@(t.TestimonialText.Length>80?t.TestimonialText.Substring(0,80)+"…":t.TestimonialText)</td>
+                    <td style="font-size:.78rem;white-space:nowrap">@t.CreatedAt.ToString("dd MMM yyyy")</td>
+                    <td><span class="status-badge @(t.StatusId==2?"badge-approved":t.StatusId==3?"badge-rejected":"badge-pending")">@(t.StatusId==2?"Approved":t.StatusId==3?"Rejected":"Pending")</span></td>
+                    <td>
+                        <div class="form-check form-switch mb-0">
+                            <input type="checkbox" class="form-check-input" role="switch"
+                                   @(t.FeaturedOnHome?"checked":"")
+                                   data-ajax-toggle="/admin/testimonialadmin/togglefeatured"
+                                   data-field="featured" data-id="@t.TestimonialId" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="td-actions">
+                            @if(t.StatusId==1){
+                                <button class="btn-admin-approve" data-ajax-review="/admin/testimonialadmin/review" data-status-id="2" data-entity-id="@t.TestimonialId"><i class='bx bx-check'></i></button>
+                                <button class="btn-admin-reject"  data-ajax-review="/admin/testimonialadmin/review" data-status-id="3" data-entity-id="@t.TestimonialId"><i class='bx bx-x'></i></button>
+                            }
+                            <button class="btn-admin-delete" data-ajax-delete="/admin/testimonialadmin/delete?id=@t.TestimonialId" data-label="this testimonial"><i class='bx bx-trash'></i></button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

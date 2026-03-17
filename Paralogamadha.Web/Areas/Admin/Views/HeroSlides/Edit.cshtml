@@ -1,0 +1,110 @@
+@* ============================================================
+   Areas/Admin/Views/HeroSlides/Edit.cshtml  (also used for Create)
+   ============================================================ *@
+@{
+    ViewBag.Title = Model != null && ((Paralogamadha.Core.Models.HeroSlide)Model).SlideId > 0 ? "Edit Hero Slide" : "Add Hero Slide";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var slide = Model as Paralogamadha.Core.Models.HeroSlide ?? new Paralogamadha.Core.Models.HeroSlide();
+    var langs  = ViewBag.Languages as IEnumerable<Paralogamadha.Core.Models.Language>;
+    bool isEdit = slide.SlideId > 0;
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <a href="/admin/heroslideadmin">Hero Slides</a><span class="sep mx-2">/</span>
+    <span class="current">@ViewBag.Title</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class='bx bx-image-add'></i>@ViewBag.Title</div>
+            </div>
+            <div class="panel-body">
+                @using (Html.BeginForm("Save", "HeroSlideAdmin", new { area = "Admin" }, FormMethod.Post, new { enctype = "multipart/form-data", id = "slideForm" })) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="SlideId" value="@slide.SlideId" />
+
+                    <div class="row g-3">
+                        <div class="col-md-8 form-group">
+                            <label class="admin-label">Title <span class="required">*</span></label>
+                            <input type="text" class="admin-input" name="Title" value="@slide.Title" required placeholder="e.g. Welcome to Paralogamadha Basilica" />
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Language</label>
+                            <select class="admin-select" name="LanguageId">
+                                @if (langs != null) {
+                                    foreach (var l in langs) {
+                                        <option value="@l.LanguageId" @(slide.LanguageId == l.LanguageId ? "selected" : "")>@l.DisplayName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Sub Title</label>
+                            <input type="text" class="admin-input" name="SubTitle" value="@slide.SubTitle" placeholder="Optional subtitle below main title" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Button Text</label>
+                            <input type="text" class="admin-input" name="ButtonText" value="@slide.ButtonText" placeholder="e.g. View Mass Timings" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Button URL</label>
+                            <input type="text" class="admin-input" name="ButtonUrl" value="@slide.ButtonUrl" placeholder="/mass-timing" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Sort Order</label>
+                            <input type="number" class="admin-input" name="SortOrder" value="@slide.SortOrder" min="0" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Status</label>
+                            <select class="admin-select" name="IsActive">
+                                <option value="true"  @(slide.IsActive ? "selected" : "")>Active</option>
+                                <option value="false" @(!slide.IsActive ? "selected" : "")>Inactive</option>
+                            </select>
+                        </div>
+
+                        @* Image Upload *@
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Background Image @(isEdit ? "(leave blank to keep current)" : "<span class='required'>*</span>")</label>
+                            <div class="img-upload-wrap">
+                                <input type="file" name="BackgroundImage" accept="image/jpeg,image/png,image/webp" @(!isEdit ? "required" : "") />
+                                <div class="img-upload-icon"><i class='bx bx-cloud-upload'></i></div>
+                                <div class="img-upload-text">
+                                    <strong>Click to upload</strong> or drag and drop<br/>
+                                    <span style="font-size:.78rem">JPG, PNG, WEBP — Max 5MB</span>
+                                </div>
+                                <img class="img-preview" src="@slide.BackgroundImageUrl" alt="" @(!string.IsNullOrEmpty(slide.BackgroundImageUrl) ? "style='display:block'" : "") />
+                            </div>
+                            @if (isEdit && !string.IsNullOrEmpty(slide.BackgroundImageUrl)) {
+                                <div class="form-hint mt-1">Current: @slide.BackgroundImageUrl</div>
+                                <input type="hidden" name="BackgroundImageUrl" value="@slide.BackgroundImageUrl" />
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save Slide</button>
+                        <a href="/admin/heroslideadmin" class="btn btn-secondary">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* Tips sidebar *@
+    <div class="col-lg-4">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-info-circle'></i>Tips</div></div>
+            <div class="panel-body">
+                <ul style="padding-left:18px;font-size:.88rem;color:var(--admin-muted);line-height:1.8">
+                    <li>Use high-resolution images (1920×1080 recommended)</li>
+                    <li>Keep titles short and impactful — max 8 words</li>
+                    <li>Sort Order 1 = first slide shown</li>
+                    <li>Inactive slides are never shown on the public site</li>
+                    <li>Images are auto-resized and EXIF data is stripped for security</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

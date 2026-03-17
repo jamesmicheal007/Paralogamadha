@@ -1,0 +1,50 @@
+@* ============================================================
+   Areas/Admin/Views/MassTiming/Index.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Mass Timing";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var schedules = Model as IEnumerable<Paralogamadha.Core.Models.MassSchedule>;
+    string[] dayNames = { "Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday" };
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Mass Timing</span>
+</div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-time'></i>Mass Schedules</div>
+        <a href="/admin/masstimingadmin/create" class="btn-admin-primary"><i class='bx bx-plus'></i>Add Schedule</a>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead>
+                <tr><th>Day</th><th>Time</th><th>Language</th><th>Venue</th><th>Celebrant</th><th>Order</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                @if (schedules != null) {
+                    foreach (var s in schedules.OrderBy(x => x.DayOfWeek).ThenBy(x => x.MassTime)) {
+                    <tr>
+                        <td><span class="status-badge badge-active">@dayNames[s.DayOfWeek]</span></td>
+                        <td style="font-weight:700;color:var(--admin-navy)">@s.MassTimeDisplay</td>
+                        <td>@s.MassLanguage</td>
+                        <td>@(string.IsNullOrEmpty(s.Venue) ? "—" : s.Venue)</td>
+                        <td>@(string.IsNullOrEmpty(s.Celebrant) ? "—" : s.Celebrant)</td>
+                        <td>@s.SortOrder</td>
+                        <td><span class="status-badge @(s.IsActive?"badge-approved":"badge-rejected")">@(s.IsActive?"Active":"Inactive")</span></td>
+                        <td>
+                            <div class="td-actions">
+                                <a href="/admin/masstimingadmin/edit/@s.ScheduleId" class="btn-admin-edit"><i class='bx bx-edit'></i>Edit</a>
+                                <button class="btn-admin-delete"
+                                        data-ajax-delete="/admin/masstimingadmin/delete?id=@s.ScheduleId"
+                                        data-label="this mass schedule"><i class='bx bx-trash'></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

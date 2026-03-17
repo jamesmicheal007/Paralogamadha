@@ -1,0 +1,86 @@
+@* ============================================================
+   Areas/Admin/Views/SiteSettings/Index.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Site Settings";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var settings = Model as IEnumerable<SiteSetting> ?? Enumerable.Empty<SiteSetting>();
+    var groups   = settings.GroupBy(s => s.SettingGroup).OrderBy(g => g.Key);
+}
+<div class="admin-breadcrumb"><a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><span class="current">Site Settings</span></div>
+
+<div class="row">
+    <div class="col-lg-9">
+        @using (Html.BeginForm("Save", "SiteSettingsAdmin", new { area = "Admin" }, FormMethod.Post)) {
+            @Html.AntiForgeryToken()
+
+            @foreach (var group in groups) {
+            <div class="admin-panel mb-4">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class='bx @(group.Key=="SEO"?"bx-search":group.Key=="Contact"?"bx-phone":group.Key=="Payment"?"bx-credit-card":group.Key=="Email"?"bx-envelope":group.Key=="Social"?"bx-share-alt":"bx-cog")'></i>
+                        @group.Key Settings
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="row g-3">
+                        @foreach (var s in group) {
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label" for="setting_@s.SettingKey">
+                                @s.SettingKey.Split('.').Last()
+                                @if (s.IsEncrypted) {<span class="status-badge badge-pending ms-1" style="font-size:.68rem">Encrypted</span>}
+                            </label>
+                            @if (s.DataType == "bool") {
+                                <select class="admin-select" name="@s.SettingKey">
+                                    <option value="true"  @(s.SettingValue=="true" ?"selected":"")>Enabled</option>
+                                    <option value="false" @(s.SettingValue!="true"?"selected":"")>Disabled</option>
+                                </select>
+                            } else if (s.SettingKey.Contains("Description") || s.SettingKey.Contains("Address") || s.DataType == "json") {
+                                <textarea class="admin-input" name="@s.SettingKey" rows="2">@(s.IsEncrypted ? "••••••••" : s.SettingValue)</textarea>
+                            } else {
+                                <input type="@(s.IsEncrypted?"password":"text")" class="admin-input"
+                                       id="setting_@s.SettingKey" name="@s.SettingKey"
+                                       value="@(s.IsEncrypted ? "" : s.SettingValue)"
+                                       placeholder="@(s.IsEncrypted ? "Leave blank to keep current" : "")" />
+                            }
+                            @if (!string.IsNullOrEmpty(s.Description)) {
+                                <div class="form-hint">@s.Description</div>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+
+            <div class="d-flex gap-3 mb-4">
+                <button type="submit" class="btn-admin-primary btn-lg"><i class='bx bx-save'></i>Save All Settings</button>
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-3">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-info-circle'></i>Notes</div></div>
+            <div class="panel-body p-3">
+                <ul style="padding-left:16px;font-size:.82rem;color:var(--admin-muted);line-height:1.9">
+                    <li>Encrypted fields are stored securely and cannot be read back</li>
+                    <li>Leave encrypted fields blank to keep existing value</li>
+                    <li>Changes take effect immediately</li>
+                    <li>Payment keys require Razorpay dashboard access</li>
+                    <li>Google Translate API key is used as fallback only</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="admin-panel mt-3">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-link'></i>Quick Links</div></div>
+            <div class="panel-body p-3 d-grid gap-2">
+                <a href="/sitemap.xml" target="_blank" class="btn-admin-view text-decoration-none"><i class='bx bx-sitemap'></i>View Sitemap</a>
+                <a href="/robots.txt" target="_blank" class="btn-admin-view text-decoration-none"><i class='bx bx-bot'></i>View robots.txt</a>
+                <a href="/admin/pageseo" class="btn-admin-edit text-decoration-none"><i class='bx bx-search-alt'></i>Page SEO Manager</a>
+            </div>
+        </div>
+    </div>
+</div>

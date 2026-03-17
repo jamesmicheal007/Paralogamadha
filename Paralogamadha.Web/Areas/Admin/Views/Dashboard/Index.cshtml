@@ -1,0 +1,190 @@
+@* ============================================================
+   Areas/Admin/Views/Dashboard/Index.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var stats = Model as Paralogamadha.Core.Models.DashboardStats;
+}
+
+<div class="admin-breadcrumb">
+    <i class='bx bxs-dashboard me-2 text-gold'></i>
+    <span class="current">Dashboard</span>
+</div>
+
+@* Stat Cards *@
+<div class="row g-3 mb-4">
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon-wrap stat-icon-red"><i class='bx bx-heart'></i></div>
+            <div>
+                <div class="stat-value">@(stats?.PendingPrayers ?? 0)</div>
+                <div class="stat-label">Pending Prayers</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon-wrap stat-icon-orange"><i class='bx bx-star'></i></div>
+            <div>
+                <div class="stat-value">@(stats?.PendingTestimonials ?? 0)</div>
+                <div class="stat-label">Pending Testimonials</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon-wrap stat-icon-blue"><i class='bx bx-calendar'></i></div>
+            <div>
+                <div class="stat-value">@(stats?.PendingBookings ?? 0)</div>
+                <div class="stat-label">Pending Bookings</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon-wrap stat-icon-green"><i class='bx bx-rupee'></i></div>
+            <div>
+                <div class="stat-value">₹@((stats?.DonationsToday ?? 0).ToString("N0"))</div>
+                <div class="stat-label">Donations Today</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon-wrap stat-icon-gold"><i class='bx bx-donate-heart'></i></div>
+            <div>
+                <div class="stat-value">@(stats?.DonationCountToday ?? 0)</div>
+                <div class="stat-label">Donations Count</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon-wrap stat-icon-navy"><i class='bx bx-user-check'></i></div>
+            <div>
+                <div class="stat-value">@(stats?.ActiveAdminUsers ?? 0)</div>
+                <div class="stat-label">Admin Users</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    @* Quick Actions *@
+    <div class="col-lg-4">
+        <div class="admin-panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class='bx bx-zap'></i>Quick Actions</div>
+            </div>
+            <div class="panel-body p-3">
+                <div class="d-grid gap-2">
+                    <a href="/admin/announcementadmin/create" class="btn-admin-primary text-decoration-none justify-content-start">
+                        <i class='bx bx-plus'></i>New Announcement
+                    </a>
+                    <a href="/admin/heroslideadmin/create" class="btn-admin-primary text-decoration-none justify-content-start" style="background:#2a3f7e">
+                        <i class='bx bx-image-add'></i>New Hero Slide
+                    </a>
+                    <a href="/admin/dailycontentadmin/thought" class="btn-admin-gold text-decoration-none justify-content-start">
+                        <i class='bx bx-bulb'></i>Today's Thought
+                    </a>
+                    <a href="/admin/dailycontentadmin/feast" class="btn-admin-gold text-decoration-none justify-content-start" style="background:#b07d22">
+                        <i class='bx bx-sun'></i>Today's Feast
+                    </a>
+                    <a href="/admin/galleryadmin/createalbum" class="btn-admin-primary text-decoration-none justify-content-start" style="background:#0369a1">
+                        <i class='bx bx-photo-album'></i>New Gallery Album
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Pending Items *@
+    <div class="col-lg-4">
+        <div class="admin-panel h-100">
+            <div class="panel-header">
+                <div class="panel-title"><i class='bx bx-time-five'></i>Needs Attention</div>
+                <span class="status-badge badge-pending">
+                    @((stats?.PendingPrayers ?? 0) + (stats?.PendingTestimonials ?? 0) + (stats?.PendingBookings ?? 0)) items
+                </span>
+            </div>
+            <div class="panel-body p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class='bx bx-heart text-danger'></i>
+                            <span style="font-size:.9rem">Prayer Requests</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            @if ((stats?.PendingPrayers ?? 0) > 0) {
+                                <span class="menu-badge">@stats.PendingPrayers</span>
+                            }
+                            <a href="/admin/prayerrequestadmin" class="btn-admin-view" style="font-size:.75rem;padding:4px 10px">Review</a>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class='bx bx-star text-warning'></i>
+                            <span style="font-size:.9rem">Testimonials</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            @if ((stats?.PendingTestimonials ?? 0) > 0) {
+                                <span class="menu-badge">@stats.PendingTestimonials</span>
+                            }
+                            <a href="/admin/testimonialadmin" class="btn-admin-view" style="font-size:.75rem;padding:4px 10px">Review</a>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class='bx bx-calendar text-primary'></i>
+                            <span style="font-size:.9rem">Room Bookings</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            @if ((stats?.PendingBookings ?? 0) > 0) {
+                                <span class="menu-badge">@stats.PendingBookings</span>
+                            }
+                            <a href="/admin/roombookingadmin" class="btn-admin-view" style="font-size:.75rem;padding:4px 10px">Review</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    @* Today Overview *@
+    <div class="col-lg-4">
+        <div class="admin-panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class='bx bx-calendar-check'></i>Today — @DateTime.Today.ToString("MMM dd, yyyy")</div>
+            </div>
+            <div class="panel-body">
+                <div class="d-grid gap-3">
+                    <a href="/admin/dailycontentadmin/feast" class="d-flex align-items-center gap-3 p-3 rounded-2 text-decoration-none" style="background:var(--admin-bg)">
+                        <div class="stat-icon-wrap stat-icon-gold" style="width:40px;height:40px;border-radius:10px"><i class='bx bx-sun'></i></div>
+                        <div>
+                            <div style="font-size:.75rem;color:var(--admin-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em">Feast</div>
+                            <div style="font-size:.88rem;color:var(--admin-navy);font-weight:600">Manage Today's Feast</div>
+                        </div>
+                        <i class='bx bx-chevron-right ms-auto text-muted'></i>
+                    </a>
+                    <a href="/admin/dailycontentadmin/reading" class="d-flex align-items-center gap-3 p-3 rounded-2 text-decoration-none" style="background:var(--admin-bg)">
+                        <div class="stat-icon-wrap stat-icon-navy" style="width:40px;height:40px;border-radius:10px"><i class='bx bx-book-open'></i></div>
+                        <div>
+                            <div style="font-size:.75rem;color:var(--admin-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em">Reading</div>
+                            <div style="font-size:.88rem;color:var(--admin-navy);font-weight:600">Manage Today's Reading</div>
+                        </div>
+                        <i class='bx bx-chevron-right ms-auto text-muted'></i>
+                    </a>
+                    <a href="/admin/dailycontentadmin/thought" class="d-flex align-items-center gap-3 p-3 rounded-2 text-decoration-none" style="background:var(--admin-bg)">
+                        <div class="stat-icon-wrap stat-icon-green" style="width:40px;height:40px;border-radius:10px"><i class='bx bx-bulb'></i></div>
+                        <div>
+                            <div style="font-size:.75rem;color:var(--admin-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em">Thought</div>
+                            <div style="font-size:.88rem;color:var(--admin-navy);font-weight:600">Manage Today's Thought</div>
+                        </div>
+                        <i class='bx bx-chevron-right ms-auto text-muted'></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,52 @@
+@* ============================================================
+   Areas/Admin/Views/Videos/Edit.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = (Model as Video)?.VideoId > 0 ? "Edit Video" : "Add Video";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var v     = Model as Video ?? new Video { IsPublished = true };
+    var cats  = ViewBag.Categories as IEnumerable<VideoCategory>;
+    var langs = ViewBag.Languages  as IEnumerable<Language>;
+}
+<div class="admin-breadcrumb"><a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><a href="/admin/videosadmin">Videos</a><span class="sep mx-2">/</span><span class="current">@ViewBag.Title</span></div>
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-video'></i>@ViewBag.Title</div></div>
+            <div class="panel-body">
+                @using (Html.BeginForm("Save", "VideosAdmin", new { area = "Admin" }, FormMethod.Post)) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="VideoId" value="@v.VideoId" />
+                    <div class="row g-3">
+                        <div class="col-md-8 form-group"><label class="admin-label">Title <span class="required">*</span></label><input type="text" class="admin-input" name="Title" value="@v.Title" required /></div>
+                        <div class="col-md-4 form-group"><label class="admin-label">Category</label><select class="admin-select" name="CategoryId">@foreach(var c in cats??Enumerable.Empty<VideoCategory>()){<option value="@c.CategoryId" @(v.CategoryId==c.CategoryId?"selected":"")>@c.CategoryName</option>}</select></div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Embed Type</label>
+                            <select class="admin-select" name="EmbedType" id="embedType" onchange="updateEmbedHint()">
+                                <option value="YouTube" @(v.EmbedType=="YouTube"?"selected":"")>YouTube</option>
+                                <option value="Vimeo"   @(v.EmbedType=="Vimeo"  ?"selected":"")>Vimeo</option>
+                                <option value="Direct"  @(v.EmbedType=="Direct" ?"selected":"")>Direct URL</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8 form-group">
+                            <label class="admin-label">Embed Code / URL <span class="required">*</span></label>
+                            <input type="text" class="admin-input" name="EmbedCode" id="embedCode" value="@v.EmbedCode" required placeholder="YouTube video ID or full URL" />
+                            <div class="form-hint" id="embedHint">For YouTube: paste the video ID (e.g. dQw4w9WgXcQ) or full URL</div>
+                        </div>
+                        <div class="col-md-6 form-group"><label class="admin-label">Thumbnail URL (auto-fetched for YouTube)</label><input type="text" class="admin-input" name="ThumbnailUrl" value="@v.ThumbnailUrl" placeholder="/uploads/videos/thumb.jpg" /></div>
+                        <div class="col-md-3 form-group"><label class="admin-label">Language</label><select class="admin-select" name="LanguageId">@foreach(var l in langs??Enumerable.Empty<Language>()){<option value="@l.LanguageId" @(v.LanguageId==l.LanguageId?"selected":"")>@l.DisplayName</option>}</select></div>
+                        <div class="col-md-3 form-group"><label class="admin-label">Status</label><select class="admin-select" name="IsPublished"><option value="true" @(v.IsPublished?"selected":"")>Published</option><option value="false" @(!v.IsPublished?"selected":"")>Draft</option></select></div>
+                        <div class="col-12 form-group"><label class="admin-label">Description</label><textarea class="admin-input" name="Description" rows="3">@v.Description</textarea></div>
+                    </div>
+                    <div class="d-flex gap-3 mt-4"><button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save</button><a href="/admin/videosadmin" class="btn btn-secondary">Cancel</a></div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="admin-panel"><div class="panel-header"><div class="panel-title"><i class='bx bx-info-circle'></i>Tips</div></div>
+        <div class="panel-body p-3"><ul style="padding-left:16px;font-size:.85rem;color:var(--admin-muted);line-height:1.9"><li>For YouTube, paste the 11-character video ID</li><li>Thumbnails auto-generate for YouTube from the video ID</li><li>Use Direct for self-hosted MP4 files</li></ul></div></div>
+    </div>
+</div>
+@section Scripts {<script>function updateEmbedHint(){const t=document.getElementById('embedType').value;const h=document.getElementById('embedHint');if(t==='YouTube')h.textContent='Paste YouTube video ID (11 chars) or full URL';else if(t==='Vimeo')h.textContent='Paste Vimeo video ID or full URL';else h.textContent='Paste full direct video URL';}updateEmbedHint();</script>}

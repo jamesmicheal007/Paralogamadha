@@ -1,0 +1,95 @@
+@* ============================================================
+   Views/Daily/Reading.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Reading of the Day";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var r     = Model as Paralogamadha.Core.Models.ReadingOfDay;
+    var today = DateTime.Today;
+    var litColor = r?.LiturgicalColor?.ToLower() ?? "green";
+}
+<div class="liturgical-bar liturgical-@litColor"></div>
+<section class="mass-timing-hero text-white" style="padding-bottom:40px">
+    <div class="container-fluid px-lg-5">
+        <div class="pbl-breadcrumb"><a href="/@ViewBag.CurrentLang/home">Home</a><span class="separator">/</span><span class="current">Reading of the Day</span></div>
+        <div class="mt-3" data-aos="fade-up">
+            <h1 class="display-5 fw-bold">Reading of the Day</h1>
+            <p style="opacity:.7">@today.ToString("dddd, MMMM dd, yyyy")</p>
+        </div>
+    </div>
+</section>
+
+<section class="section-gap">
+    <div class="container-fluid px-lg-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                @if (r != null) {
+                <ul class="nav reading-tabs border-bottom mb-0" data-aos="fade-up">
+                    @if (!string.IsNullOrEmpty(r.FirstReading)) {
+                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-first">First Reading</a></li>
+                    }
+                    @if (!string.IsNullOrEmpty(r.Psalm)) {
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-psalm">Psalm</a></li>
+                    }
+                    @if (!string.IsNullOrEmpty(r.SecondReading)) {
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-second">Second Reading</a></li>
+                    }
+                    @if (!string.IsNullOrEmpty(r.Gospel)) {
+                        <li class="nav-item"><a class="nav-link @(string.IsNullOrEmpty(r.FirstReading)?"active":"")" data-bs-toggle="tab" href="#tab-gospel">Gospel</a></li>
+                    }
+                </ul>
+                <div class="tab-content" data-aos="fade-up" data-aos-delay="100">
+                    @if (!string.IsNullOrEmpty(r.FirstReading)) {
+                    <div class="tab-pane fade show active" id="tab-first">
+                        <div class="reading-content">
+                            @if (!string.IsNullOrEmpty(r.FirstReadingRef)) {
+                                <div class="reading-ref">@r.FirstReadingRef</div>
+                            }
+                            @r.FirstReading
+                        </div>
+                    </div>
+                    }
+                    @if (!string.IsNullOrEmpty(r.Psalm)) {
+                    <div class="tab-pane fade" id="tab-psalm">
+                        <div class="reading-content">
+                            @if (!string.IsNullOrEmpty(r.PsalmRef)) {
+                                <div class="reading-ref">@r.PsalmRef</div>
+                            }
+                            @r.Psalm
+                        </div>
+                    </div>
+                    }
+                    @if (!string.IsNullOrEmpty(r.SecondReading)) {
+                    <div class="tab-pane fade" id="tab-second">
+                        <div class="reading-content">
+                            @if (!string.IsNullOrEmpty(r.SecondReadingRef)) {
+                                <div class="reading-ref">@r.SecondReadingRef</div>
+                            }
+                            @r.SecondReading
+                        </div>
+                    </div>
+                    }
+                    @if (!string.IsNullOrEmpty(r.Gospel)) {
+                    <div class="tab-pane fade @(string.IsNullOrEmpty(r.FirstReading)?"show active":"")" id="tab-gospel">
+                        <div class="reading-content" style="border-left:4px solid var(--gold)">
+                            @if (!string.IsNullOrEmpty(r.GospelRef)) {
+                                <div class="reading-ref">✝ Gospel: @r.GospelRef</div>
+                            }
+                            @r.Gospel
+                        </div>
+                    </div>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(r.Source)) {
+                    <div class="mt-3 text-muted" style="font-size:.8rem"><i class='bx bx-info-circle me-1'></i>Source: @r.Source</div>
+                }
+                } else {
+                <div class="text-center py-5 text-muted" data-aos="fade-up">
+                    <i class='bx bx-book-open' style="font-size:3rem;opacity:.3"></i>
+                    <h5 class="mt-3">No readings available for today</h5>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

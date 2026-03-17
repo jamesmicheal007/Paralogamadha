@@ -1,0 +1,50 @@
+@* ============================================================
+   Areas/Admin/Views/Users/Index.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Users";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var users = Model as IEnumerable<ApplicationUser> ?? Enumerable.Empty<ApplicationUser>();
+}
+<div class="admin-breadcrumb"><a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><span class="current">Users</span></div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-group'></i>Admin Users</div>
+        <a href="/admin/useradmin/create" class="btn-admin-primary"><i class='bx bx-plus'></i>Add User</a>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead><tr><th>Avatar</th><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Last Login</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var u in users) {
+                <tr>
+                    <td>
+                        <div style="width:36px;height:36px;border-radius:50%;background:var(--admin-navy);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem">
+                            @u.FullName.Substring(0,1).ToUpper()
+                        </div>
+                    </td>
+                    <td style="font-weight:600">@u.FullName</td>
+                    <td style="font-size:.85rem;color:var(--admin-muted)">@u.Username</td>
+                    <td style="font-size:.85rem">@u.Email</td>
+                    <td>
+                        <span class="status-badge @(u.RoleName=="SuperAdmin"?"badge-rejected":u.RoleName=="ContentEditor"?"badge-approved":"badge-pending")">
+                            @u.RoleName
+                        </span>
+                    </td>
+                    <td style="font-size:.78rem;color:var(--admin-muted)">
+                        @(u.LastLoginAt.HasValue ? u.LastLoginAt.Value.ToString("dd MMM yyyy HH:mm") : "Never")
+                    </td>
+                    <td><span class="status-badge @(u.IsActive?"badge-approved":"badge-rejected")">@(u.IsActive?"Active":"Inactive")</span></td>
+                    <td>
+                        <div class="td-actions">
+                            <a href="/admin/useradmin/edit/@u.UserId" class="btn-admin-edit"><i class='bx bx-edit'></i>Edit</a>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

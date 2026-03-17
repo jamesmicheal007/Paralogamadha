@@ -1,0 +1,267 @@
+@* ============================================================
+   Views/Songs/Index.cshtml — Songs with WaveSurfer Player
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Songs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as IEnumerable<SongCategory>;
+    var songs      = Model as IEnumerable<Song> ?? Enumerable.Empty<Song>();
+}
+
+<section class="mass-timing-hero text-white">
+    <div class="container-fluid px-lg-5">
+        <div class="pbl-breadcrumb">
+            <a href="/@ViewBag.CurrentLang/home">Home</a><span class="separator">/</span>
+            <span class="current">Songs</span>
+        </div>
+        <div class="mt-3" data-aos="fade-up">
+            <div class="eyebrow mb-2" style="color:var(--gold-light);font-size:.78rem;letter-spacing:.15em;font-weight:700;text-transform:uppercase">Parish Music</div>
+            <h1 class="display-5 fw-bold">Hymns &amp; Songs</h1>
+            <p style="opacity:.8">Liturgical music, Tamil hymns and sacred songs of the Basilica.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section-gap pb-5" style="background:var(--sky)">
+    <div class="container-fluid px-lg-5">
+        @* Category Tabs *@
+        @if (categories != null && categories.Any()) {
+        <div class="gallery-filter-bar mb-4" data-aos="fade-up">
+            <button class="filter-btn active" data-cat="all">All</button>
+            @foreach (var cat in categories) {
+                <button class="filter-btn" data-cat="@cat.CategoryId">@cat.CategoryName</button>
+            }
+        </div>
+        }
+
+        <div class="row g-4" id="songsList">
+            @foreach (var song in songs) {
+            <div class="col-md-6 col-lg-4" data-cat="@song.CategoryId" data-aos="fade-up">
+                <div class="pbl-card p-0 overflow-hidden song-card" data-src="@song.AudioFileUrl" data-title="@song.Title">
+                    @* Card Header *@
+                    <div class="d-flex align-items-center gap-3 p-3 border-bottom">
+                        <button class="song-play-btn" data-song-id="@song.SongId" aria-label="Play @song.Title">
+                            <i class='bx bx-play-circle'></i>
+                        </button>
+                        <div class="flex-grow-1 min-width-0">
+                            <div class="song-title">@song.Title</div>
+                            @if (song.Duration.HasValue && song.Duration > 0) {
+                                <div class="song-duration">
+                                    @TimeSpan.FromSeconds(song.Duration.Value).ToString(@"mm\:ss")
+                                </div>
+                            }
+                        </div>
+                        @if (!string.IsNullOrEmpty(song.AudioFileUrl)) {
+                            <a href="@song.AudioFileUrl" download class="song-dl-btn" title="Download">
+                                <i class='bx bx-download'></i>
+                            </a>
+                        }
+                    </div>
+                    @* WaveSurfer container *@
+                    @if (!string.IsNullOrEmpty(song.AudioFileUrl)) {
+                        <div class="wave-container" id="wave-@song.SongId"></div>
+                    }
+                    @* Lyrics toggle *@
+                    @if (!string.IsNullOrEmpty(song.Lyrics)) {
+                        <div class="p-3 border-top">
+                            <button class="lyrics-toggle-btn" data-target="lyrics-@song.SongId">
+                                <i class='bx bx-text me-1'></i>View Lyrics
+                            </button>
+                            <div class="lyrics-panel" id="lyrics-@song.SongId">
+                                <pre class="lyrics-text">@song.Lyrics</pre>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+
+        @if (!songs.Any()) {
+            <div class="text-center py-5 text-muted">
+                <i class='bx bx-music' style="font-size:3rem;opacity:.3;display:block;margin-bottom:12px"></i>
+                No songs available yet.
+            </div>
+        }
+    </div>
+</section>
+
+@* Fixed bottom player bar *@
+<div class="player-bar" id="playerBar">
+    <div class="player-bar-inner container-fluid px-lg-5">
+        <div class="player-track-info">
+            <div class="player-icon"><i class='bx bx-music'></i></div>
+            <div>
+                <div class="player-title" id="playerTitle">No track selected</div>
+                <div class="player-status" id="playerStatus">Ready</div>
+            </div>
+        </div>
+        <div class="player-controls">
+            <button id="playerPrev"  class="player-btn" title="Previous"><i class='bx bx-skip-previous'></i></button>
+            <button id="playerPlayPause" class="player-btn player-btn-main" title="Play/Pause">
+                <i class='bx bx-play'></i>
+            </button>
+            <button id="playerNext"  class="player-btn" title="Next"><i class='bx bx-skip-next'></i></button>
+        </div>
+        <div class="player-volume d-none d-md-flex align-items-center gap-2">
+            <i class='bx bx-volume-full' style="color:var(--muted)"></i>
+            <input type="range" id="playerVolume" min="0" max="1" step="0.05" value="0.8" style="width:80px;accent-color:var(--navy)" />
+        </div>
+        <button id="playerClose" class="player-btn" title="Close"><i class='bx bx-x'></i></button>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+<style>
+.song-play-btn {
+    width:44px;height:44px;border-radius:50%;background:var(--navy);color:#fff;
+    border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    font-size:1.4rem;transition:all .25s;flex-shrink:0;
+}
+.song-play-btn.playing { background:var(--gold); }
+.song-play-btn:hover   { transform:scale(1.08); }
+.song-title    { font-weight:700;font-size:.92rem;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.song-duration { font-size:.75rem;color:var(--muted); }
+.song-dl-btn   { color:var(--muted);font-size:1.2rem;transition:color .2s; }
+.song-dl-btn:hover { color:var(--navy); }
+.wave-container { padding:8px 12px;min-height:48px; }
+.lyrics-toggle-btn {
+    background:none;border:none;font-size:.82rem;font-weight:600;color:var(--navy);cursor:pointer;padding:0;
+}
+.lyrics-panel  { display:none;margin-top:10px; }
+.lyrics-panel.open { display:block; }
+.lyrics-text   {
+    white-space:pre-wrap;font-family:'Playfair Display',Georgia,serif;
+    font-size:.9rem;line-height:1.85;color:var(--text);background:#fffdf6;
+    border:1px solid #f0e8cc;border-radius:8px;padding:14px;max-height:260px;overflow-y:auto;
+}
+.player-bar {
+    position:fixed;bottom:0;left:0;right:0;
+    background:rgba(27,42,91,.97);backdrop-filter:blur(16px);
+    border-top:1px solid rgba(255,255,255,.1);
+    padding:10px 0;z-index:1040;
+    transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.player-bar.visible { transform:translateY(0); }
+.player-bar-inner  { display:flex;align-items:center;gap:20px; }
+.player-track-info { display:flex;align-items:center;gap:12px;flex:1;min-width:0; }
+.player-icon       { width:38px;height:38px;background:rgba(255,255,255,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#fff;flex-shrink:0; }
+.player-title      { font-size:.88rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.player-status     { font-size:.72rem;color:rgba(255,255,255,.5); }
+.player-controls   { display:flex;align-items:center;gap:8px; }
+.player-btn        { background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;transition:all .2s; }
+.player-btn:hover  { background:rgba(255,255,255,.2); }
+.player-btn-main   { width:44px;height:44px;font-size:1.3rem;background:var(--gold); }
+.player-btn-main:hover { background:#b07d22; }
+</style>
+<script>
+(function() {
+    const waveSurfers = {};
+    const songCards   = Array.from(document.querySelectorAll('.song-card[data-src]'));
+    const playerBar   = document.getElementById('playerBar');
+    const playerTitle = document.getElementById('playerTitle');
+    const playerStatus= document.getElementById('playerStatus');
+    const ppBtn       = document.getElementById('playerPlayPause');
+    const volSlider   = document.getElementById('playerVolume');
+    let currentSongId = null;
+    let currentIdx    = 0;
+
+    // Init WaveSurfer for each card
+    document.querySelectorAll('.song-play-btn').forEach(btn => {
+        const card    = btn.closest('.song-card');
+        const src     = card?.dataset.src;
+        const songId  = btn.dataset.songId;
+        const waveEl  = document.getElementById('wave-' + songId);
+        if (!src || !waveEl) return;
+
+        const ws = WaveSurfer.create({
+            container:   waveEl,
+            waveColor:   '#cbd5e1',
+            progressColor: '#1B2A5B',
+            cursorColor:  '#C8922A',
+            height:       40,
+            barWidth:     2,
+            barGap:       2,
+            barRadius:    2,
+            url:          src,
+            interact:     true,
+        });
+
+        waveSurfers[songId] = ws;
+
+        ws.on('play',   () => { btn.classList.add('playing'); btn.innerHTML="<i class='bx bx-pause'></i>"; ppBtn.innerHTML="<i class='bx bx-pause'></i>"; playerStatus.textContent='Playing'; });
+        ws.on('pause',  () => { btn.classList.remove('playing'); btn.innerHTML="<i class='bx bx-play-circle'></i>"; ppBtn.innerHTML="<i class='bx bx-play'></i>"; playerStatus.textContent='Paused'; });
+        ws.on('finish', () => { btn.classList.remove('playing'); btn.innerHTML="<i class='bx bx-play-circle'></i>"; ppBtn.innerHTML="<i class='bx bx-play'></i>"; playerStatus.textContent='Finished'; playNext(); });
+
+        btn.addEventListener('click', () => {
+            if (currentSongId && currentSongId !== songId) {
+                waveSurfers[currentSongId]?.pause();
+                document.querySelector(`[data-song-id="${currentSongId}"]`)?.classList.remove('playing');
+            }
+            currentSongId = songId;
+            currentIdx    = songCards.findIndex(c => c === card);
+            playerTitle.textContent = card.dataset.title || 'Track';
+            playerBar.classList.add('visible');
+            ws.isPlaying() ? ws.pause() : ws.play();
+        });
+    });
+
+    // Category filter
+    document.querySelectorAll('.filter-btn[data-cat]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const cat = btn.dataset.cat;
+            document.querySelectorAll('#songsList > [data-cat]').forEach(card => {
+                card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+            });
+        });
+    });
+
+    // Lyrics toggle
+    document.querySelectorAll('.lyrics-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const panel = document.getElementById(btn.dataset.target);
+            if (!panel) return;
+            panel.classList.toggle('open');
+            btn.innerHTML = panel.classList.contains('open')
+                ? "<i class='bx bx-hide me-1'></i>Hide Lyrics"
+                : "<i class='bx bx-text me-1'></i>View Lyrics";
+        });
+    });
+
+    // Player bar controls
+    ppBtn?.addEventListener('click', () => {
+        if (currentSongId) waveSurfers[currentSongId]?.playPause();
+    });
+    document.getElementById('playerPrev')?.addEventListener('click', () => {
+        if (currentSongId) { waveSurfers[currentSongId]?.pause(); currentIdx = Math.max(0, currentIdx-1); playByIdx(currentIdx); }
+    });
+    document.getElementById('playerNext')?.addEventListener('click', playNext);
+    document.getElementById('playerClose')?.addEventListener('click', () => {
+        if (currentSongId) waveSurfers[currentSongId]?.pause();
+        playerBar.classList.remove('visible');
+    });
+    volSlider?.addEventListener('input', function() {
+        if (currentSongId) waveSurfers[currentSongId]?.setVolume(parseFloat(this.value));
+    });
+
+    function playNext() {
+        const nextIdx = currentIdx + 1;
+        if (nextIdx < songCards.length) playByIdx(nextIdx);
+    }
+    function playByIdx(idx) {
+        const card    = songCards[idx];
+        if (!card) return;
+        const songId  = card.querySelector('.song-play-btn')?.dataset.songId;
+        if (!songId || !waveSurfers[songId]) return;
+        currentIdx    = idx;
+        currentSongId = songId;
+        playerTitle.textContent = card.dataset.title || 'Track';
+        waveSurfers[songId].play();
+    }
+})();
+</script>
+}

@@ -1,0 +1,84 @@
+@* ============================================================
+   Areas/Admin/Views/Songs/Edit.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = (Model as Song)?.SongId > 0 ? "Edit Song" : "Add Song";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var s     = Model as Song ?? new Song { IsPublished = true };
+    var cats  = ViewBag.Categories as IEnumerable<SongCategory>;
+    var langs = ViewBag.Languages  as IEnumerable<Language>;
+}
+<div class="admin-breadcrumb"><a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><a href="/admin/songsadmin">Songs</a><span class="sep mx-2">/</span><span class="current">@ViewBag.Title</span></div>
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-music'></i>@ViewBag.Title</div></div>
+            <div class="panel-body">
+                @using (Html.BeginForm("Save", "SongsAdmin", new { area = "Admin" }, FormMethod.Post, new { enctype = "multipart/form-data" })) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="SongId" value="@s.SongId" />
+                    <div class="row g-3">
+                        <div class="col-md-8 form-group"><label class="admin-label">Title <span class="required">*</span></label><input type="text" class="admin-input" name="Title" value="@s.Title" required /></div>
+                        <div class="col-md-4 form-group"><label class="admin-label">Category</label><select class="admin-select" name="CategoryId">@foreach(var c in cats??Enumerable.Empty<SongCategory>()){<option value="@c.CategoryId" @(s.CategoryId==c.CategoryId?"selected":"")>@c.CategoryName</option>}</select></div>
+                        <div class="col-md-4 form-group"><label class="admin-label">Language</label><select class="admin-select" name="LanguageId">@foreach(var l in langs??Enumerable.Empty<Language>()){<option value="@l.LanguageId" @(s.LanguageId==l.LanguageId?"selected":"")>@l.DisplayName</option>}</select></div>
+                        <div class="col-md-4 form-group"><label class="admin-label">Duration (seconds)</label><input type="number" class="admin-input" name="Duration" value="@s.Duration" min="0" placeholder="e.g. 213" /></div>
+                        <div class="col-md-4 form-group"><label class="admin-label">Status</label><select class="admin-select" name="IsPublished"><option value="true" @(s.IsPublished?"selected":"")>Published</option><option value="false" @(!s.IsPublished?"selected":"")>Draft</option></select></div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Audio File @(s.SongId>0?"(leave blank to keep current)":"")</label>
+                            <div class="img-upload-wrap"><input type="file" name="AudioFile" accept="audio/mpeg,audio/ogg,audio/wav" /><div class="img-upload-icon"><i class='bx bx-music'></i></div><div class="img-upload-text"><strong>Upload MP3/OGG/WAV</strong> — Max 50MB</div></div>
+                            @if(s.SongId>0 && !string.IsNullOrEmpty(s.AudioFileUrl)){<div class="form-hint mt-1">Current: @s.AudioFileUrl</div><input type="hidden" name="AudioFileUrl" value="@s.AudioFileUrl" />}
+                        </div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Lyrics</label>
+                            <textarea class="admin-input" name="Lyrics" rows="10" placeholder="Paste song lyrics here…" style="font-family:'Playfair Display',serif;font-size:.92rem;line-height:1.8">@s.Lyrics</textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 mt-4"><button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save Song</button><a href="/admin/songsadmin" class="btn btn-secondary">Cancel</a></div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* ============================================================
+   Areas/Admin/Views/LiveTV/Index.cshtml
+   ============================================================ *@
+@*
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Live TV";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var channels = Model as IEnumerable<LiveTVChannel> ?? Enumerable.Empty<LiveTVChannel>();
+}
+<div class="admin-breadcrumb"><a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><span class="current">Live TV</span></div>
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-tv'></i>Live TV Channels</div>
+        <a href="/admin/livetvadmin/create" class="btn-admin-primary"><i class='bx bx-plus'></i>Add Channel</a>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead><tr><th>Channel Name</th><th>Type</th><th>URL</th><th>Live Now</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var ch in channels) {
+                <tr>
+                    <td style="font-weight:600">@ch.ChannelName</td>
+                    <td><span class="status-badge badge-active">@ch.EmbedType</span></td>
+                    <td style="max-width:200px;font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@ch.EmbedUrl</td>
+                    <td>
+                        <div class="form-check form-switch mb-0">
+                            <input type="checkbox" class="form-check-input" role="switch" @(ch.IsLive?"checked":"")
+                                   data-ajax-toggle="/admin/livetvadmin/togglelive" data-field="isLive" data-id="@ch.ChannelId" />
+                        </div>
+                    </td>
+                    <td><span class="status-badge @(ch.IsActive?"badge-approved":"badge-rejected")">@(ch.IsActive?"Active":"Inactive")</span></td>
+                    <td><div class="td-actions"><a href="/admin/livetvadmin/edit/@ch.ChannelId" class="btn-admin-edit"><i class='bx bx-edit'></i>Edit</a></div></td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+*@

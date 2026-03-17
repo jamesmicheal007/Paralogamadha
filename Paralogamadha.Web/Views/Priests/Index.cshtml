@@ -1,0 +1,132 @@
+@* ============================================================
+   Views/Priest/Index.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Parish Priests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var model = Model as dynamic;
+    var current = model.Current as IEnumerable<Paralogamadha.Core.Models.Priest>;
+    var past    = (model.Past as IEnumerable<Paralogamadha.Core.Models.Priest>)
+                  ?.Where(p => !p.IsCurrent) ?? Enumerable.Empty<Paralogamadha.Core.Models.Priest>();
+}
+
+<section class="mass-timing-hero text-white">
+    <div class="container-fluid px-lg-5">
+        <div class="pbl-breadcrumb"><a href="/@ViewBag.CurrentLang/home">Home</a><span class="separator">/</span><span class="current">Parish Priests</span></div>
+        <div class="mt-3" data-aos="fade-up">
+            <div class="eyebrow mb-2" style="color:var(--gold-light);font-size:.78rem;letter-spacing:.15em;font-weight:700;text-transform:uppercase">Our Spiritual Leaders</div>
+            <h1 class="display-5 fw-bold">Parish Priests</h1>
+        </div>
+    </div>
+</section>
+
+@* Current priests *@
+<section class="section-gap">
+    <div class="container-fluid px-lg-5">
+        <div class="section-heading" data-aos="fade-up">
+            <div class="eyebrow">Present</div>
+            <h2>Current Parish Priest@(current?.Count() > 1 ? "s" : "")</h2>
+            <div class="divider"></div>
+        </div>
+        <div class="row g-4 justify-content-center">
+            @if (current != null && current.Any()) {
+                foreach (var p in current) {
+                <div class="col-md-6 col-lg-4" data-aos="fade-up">
+                    <div class="priest-flip">
+                        <div class="priest-flip-inner">
+                            <div class="priest-flip-front priest-card">
+                                <div class="priest-img-wrap">
+                                    @if (!string.IsNullOrEmpty(p.PhotoUrl)) {
+                                        <img src="@p.PhotoUrl" alt="@p.FullName" loading="lazy" />
+                                    } else {
+                                        <div class="priest-img-placeholder"><i class='bx bx-user'></i></div>
+                                    }
+                                    <span class="priest-current-badge">Current</span>
+                                    @if (!string.IsNullOrEmpty(p.Tenure)) {
+                                        <span class="priest-tenure-badge">@p.Tenure</span>
+                                    }
+                                </div>
+                                <div class="priest-body">
+                                    @if (!string.IsNullOrEmpty(p.Title)) {
+                                        <div class="priest-title-text">@p.Title</div>
+                                    }
+                                    <h4 class="priest-name">@p.FullName</h4>
+                                    @if (!string.IsNullOrEmpty(p.Bio)) {
+                                        <p class="priest-bio">@p.Bio</p>
+                                    }
+                                    <div class="mt-3" style="font-size:.78rem;color:var(--muted)"><i class='bx bx-rotate-right me-1'></i>Hover to read more</div>
+                                </div>
+                            </div>
+                            <div class="priest-flip-back">
+                                <div style="font-size:2.5rem;margin-bottom:12px;opacity:.4">✝</div>
+                                <h4>@p.FullName</h4>
+                                @if (!string.IsNullOrEmpty(p.Bio)) {
+                                    <p>@p.Bio</p>
+                                }
+                                <div class="tenure">@p.Tenure</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+            } else {
+                <div class="col-12 text-center text-muted py-4">No current priest information available.</div>
+            }
+        </div>
+    </div>
+</section>
+
+@* Past Priests *@
+@if (past.Any()) {
+<section class="section-gap" style="background:var(--sky)">
+    <div class="container-fluid px-lg-5">
+        <div class="section-heading" data-aos="fade-up">
+            <div class="eyebrow">Legacy</div>
+            <h2>Former Parish Priests</h2>
+            <div class="divider"></div>
+        </div>
+        <div class="row g-4">
+            @foreach (var p in past) {
+            <div class="col-md-6 col-lg-3" data-aos="fade-up">
+                <div class="priest-card">
+                    <div class="priest-img-wrap" style="height:220px">
+                        @if (!string.IsNullOrEmpty(p.PhotoUrl)) {
+                            <img src="@p.PhotoUrl" alt="@p.FullName" loading="lazy" />
+                        } else {
+                            <div class="priest-img-placeholder"><i class='bx bx-user'></i></div>
+                        }
+                        @if (!string.IsNullOrEmpty(p.Tenure)) {
+                            <span class="priest-tenure-badge">@p.Tenure</span>
+                        }
+                    </div>
+                    <div class="priest-body">
+                        @if (!string.IsNullOrEmpty(p.Title)) {
+                            <div class="priest-title-text">@p.Title</div>
+                        }
+                        <h5 class="priest-name">@p.FullName</h5>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</section>
+}
+
+
+@* ============================================================
+   Views/Daily/Feast.cshtml
+   ============================================================ *@
+@*@{
+    ViewBag.Title = "Feast of the Day";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var feast = Model as Paralogamadha.Core.Models.FeastOfDay;
+    var today = DateTime.Today;
+}
+
+<section class="mass-timing-hero text-white">
+    <div class="container-fluid px-lg-5">
+        <div class="pbl-breadcrumb"><a href="/@ViewBag.CurrentLang/home">Home</a><span class="separator">/</span><span class="current">Feast of the Day</span></div>
+        <div class="mt-3"><h1 class="display-5 fw-bold">Feast of the Day</h1><p style="opacity:.7">@today.ToString("dddd, MMMM dd, yyyy")</p></div>
+    </div>
+</section>*@

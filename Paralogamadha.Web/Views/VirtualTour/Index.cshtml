@@ -1,0 +1,125 @@
+@* ============================================================
+   Views/VirtualTour/Index.cshtml — Pannellum 360° Tour
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Virtual Tour";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var tourConfig = ViewBag.TourConfig as string ?? "{}";
+    var scenes     = ViewBag.Scenes as IEnumerable<VirtualTourScene> ?? Enumerable.Empty<VirtualTourScene>();
+}
+
+<section class="mass-timing-hero text-white" style="padding-bottom:40px">
+    <div class="container-fluid px-lg-5">
+        <div class="pbl-breadcrumb"><a href="/@ViewBag.CurrentLang/home">Home</a><span class="separator">/</span><span class="current">Virtual Tour</span></div>
+        <div class="mt-3" data-aos="fade-up">
+            <div class="eyebrow mb-2" style="color:var(--gold-light);font-size:.78rem;letter-spacing:.15em;font-weight:700;text-transform:uppercase">360° Experience</div>
+            <h1 class="display-5 fw-bold">Virtual Tour of the Basilica</h1>
+            <p style="opacity:.8">Explore every corner of Paralogamadha Basilica in immersive 360°.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section-gap-sm" style="background:#0a0f1e">
+    <div class="container-fluid px-lg-4">
+        @* Pannellum Viewer *@
+        <div id="panorama" data-aos="fade-up" style="height:560px;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)"></div>
+
+        @* Scene Thumbnails *@
+        @if (scenes.Any()) {
+        <div class="scene-strip mt-3" data-aos="fade-up">
+            @foreach (var scene in scenes) {
+            <button class="scene-thumb-btn" data-scene="@scene.SceneId" title="@scene.SceneName">
+                @if (!string.IsNullOrEmpty(scene.ThumbnailUrl)) {
+                    <img src="@scene.ThumbnailUrl" alt="@scene.SceneName" loading="lazy" />
+                } else {
+                    <div class="scene-thumb-placeholder"><i class='bx bx-camera'></i></div>
+                }
+                <span class="scene-thumb-label">@scene.SceneName</span>
+            </button>
+            }
+        </div>
+        }
+
+        @* Tips *@
+        <div class="text-center mt-4" style="color:rgba(255,255,255,.45);font-size:.82rem">
+            <i class='bx bx-mouse me-1'></i>Click and drag to look around &nbsp;·&nbsp;
+            <i class='bx bx-zoom-in me-1'></i>Scroll to zoom &nbsp;·&nbsp;
+            <i class='bx bx-fullscreen me-1'></i>Click ⛶ for fullscreen
+        </div>
+    </div>
+</section>
+
+<section class="section-gap" style="background:var(--sky)">
+    <div class="container-fluid px-lg-5 text-center">
+        <div class="section-heading" data-aos="fade-up">
+            <div class="eyebrow">Visit Us</div>
+            <h2>Come See It In Person</h2>
+            <div class="divider"></div>
+            <p>The virtual tour gives you a glimpse — nothing compares to being here.</p>
+        </div>
+        <a href="/@ViewBag.CurrentLang/masstiming" class="btn-pbl-navy">View Mass Timings</a>
+    </div>
+</section>
+
+@section Scripts {
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+<style>
+.scene-strip {
+    display:flex; gap:10px; overflow-x:auto; padding-bottom:6px;
+    scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.2) transparent;
+}
+.scene-strip::-webkit-scrollbar { height:4px; }
+.scene-strip::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2); border-radius:2px; }
+.scene-thumb-btn {
+    flex:0 0 auto; width:120px; border:2px solid rgba(255,255,255,.1); border-radius:10px;
+    overflow:hidden; cursor:pointer; background:rgba(255,255,255,.05);
+    transition:border-color .25s, transform .25s; padding:0;
+}
+.scene-thumb-btn:hover, .scene-thumb-btn.active { border-color:var(--gold); transform:translateY(-2px); }
+.scene-thumb-btn img { width:100%; height:70px; object-fit:cover; display:block; }
+.scene-thumb-placeholder { height:70px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:rgba(255,255,255,.3); }
+.scene-thumb-label { display:block; padding:6px 6px; font-size:.72rem; color:rgba(255,255,255,.7); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+</style>
+<script>
+(function(){
+    const config = @Html.Raw(tourConfig);
+    let viewer;
+
+    if (config && config.scenes && Object.keys(config.scenes).length > 0) {
+        viewer = pannellum.viewer('panorama', {
+            default: { firstScene: config.default?.firstScene, autoLoad: true, showControls: true, hfov: 100 },
+            scenes:  config.scenes
+        });
+
+        // Scene thumbnail click
+        document.querySelectorAll('.scene-thumb-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const sceneId = btn.dataset.scene;
+                if (viewer && sceneId) {
+                    viewer.loadScene(sceneId);
+                    document.querySelectorAll('.scene-thumb-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                }
+            });
+        });
+
+        viewer.on('scenechange', (sceneId) => {
+            document.querySelectorAll('.scene-thumb-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.scene === String(sceneId));
+            });
+        });
+
+        // Activate first thumb
+        const firstThumb = document.querySelector('.scene-thumb-btn');
+        if (firstThumb) firstThumb.classList.add('active');
+    } else {
+        document.getElementById('panorama').innerHTML =
+            '<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.4)">' +
+            '<i class="bx bx-camera" style="font-size:3rem;margin-bottom:12px"></i>' +
+            '<p style="font-size:.9rem">Virtual tour content coming soon.</p></div>';
+    }
+})();
+</script>
+}

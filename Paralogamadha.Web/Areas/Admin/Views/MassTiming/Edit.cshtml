@@ -1,0 +1,137 @@
+@* ============================================================
+   Areas/Admin/Views/MassTiming/Edit.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = Model != null && ((Paralogamadha.Core.Models.MassSchedule)Model).ScheduleId > 0 ? "Edit Mass Schedule" : "Add Mass Schedule";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var s     = Model as Paralogamadha.Core.Models.MassSchedule ?? new Paralogamadha.Core.Models.MassSchedule();
+    var langs = ViewBag.Languages as IEnumerable<Paralogamadha.Core.Models.Language>;
+    string[] dayNames = { "Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday" };
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <a href="/admin/masstimingadmin">Mass Timing</a><span class="sep mx-2">/</span>
+    <span class="current">@ViewBag.Title</span>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="admin-panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class='bx bx-time'></i>@ViewBag.Title</div>
+            </div>
+            <div class="panel-body">
+                @using (Html.BeginForm("Save", "MassTimingAdmin", new { area = "Admin" }, FormMethod.Post)) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ScheduleId" value="@s.ScheduleId" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Day of Week <span class="required">*</span></label>
+                            <select class="admin-select" name="DayOfWeek" required>
+                                @for (int d = 0; d < 7; d++) {
+                                    <option value="@d" @(s.DayOfWeek == d ? "selected" : "")>@dayNames[d]</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Mass Time <span class="required">*</span></label>
+                            <input type="time" class="admin-input" name="MassTime"
+                                   value="@s.MassTime.ToString(@"hh\:mm")" required />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Mass Language <span class="required">*</span></label>
+                            <select class="admin-select" name="MassLanguage" required>
+                                <option value="Tamil"   @(s.MassLanguage=="Tamil"  ?"selected":"")>Tamil</option>
+                                <option value="English" @(s.MassLanguage=="English"?"selected":"")>English</option>
+                                <option value="Latin"   @(s.MassLanguage=="Latin"  ?"selected":"")>Latin</option>
+                                <option value="Hindi"   @(s.MassLanguage=="Hindi"  ?"selected":"")>Hindi</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Display Language</label>
+                            <select class="admin-select" name="LanguageId">
+                                @if (langs != null) {
+                                    foreach (var l in langs) {
+                                        <option value="@l.LanguageId" @(s.LanguageId==l.LanguageId?"selected":"")>@l.DisplayName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Venue</label>
+                            <input type="text" class="admin-input" name="Venue" value="@s.Venue" placeholder="e.g. Main Basilica" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Celebrant</label>
+                            <input type="text" class="admin-input" name="Celebrant" value="@s.Celebrant" placeholder="Rev. Fr. Name" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Sort Order</label>
+                            <input type="number" class="admin-input" name="SortOrder" value="@s.SortOrder" min="0" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Status</label>
+                            <select class="admin-select" name="IsActive">
+                                <option value="true"  @(s.IsActive ?"selected":"")>Active</option>
+                                <option value="false" @(!s.IsActive?"selected":"")>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Notes</label>
+                            <textarea class="admin-input" name="Notes" rows="2" placeholder="Optional notes displayed with this mass">@s.Notes</textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-3">
+                        <button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save</button>
+                        <a href="/admin/masstimingadmin" class="btn btn-secondary">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* ============================================================
+   Areas/Admin/Views/Announcements/Index.cshtml
+   ============================================================ *@
+@*
+@{
+    ViewBag.Title = "Announcements";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var anns = Model as IEnumerable<Paralogamadha.Core.Models.Announcement>;
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><span class="current">Announcements</span>
+</div>
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-bell'></i>Announcements</div>
+        <a href="/admin/announcementadmin/create" class="btn-admin-primary"><i class='bx bx-plus'></i>New</a>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead><tr><th>Title</th><th>Priority</th><th>Publish Date</th><th>Expiry</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var a in anns ?? Enumerable.Empty<Paralogamadha.Core.Models.Announcement>()) {
+                <tr>
+                    <td style="font-weight:600">@a.Title</td>
+                    <td><span class="@a.PriorityBadgeClass">@a.PriorityLabel</span></td>
+                    <td style="font-size:.82rem">@a.PublishDate.ToString("dd MMM yyyy HH:mm")</td>
+                    <td style="font-size:.82rem">@(a.ExpiryDate.HasValue?a.ExpiryDate.Value.ToString("dd MMM yyyy"):"Never")</td>
+                    <td><span class="status-badge @(a.IsActive?"badge-approved":"badge-rejected")">@(a.IsActive?"Active":"Inactive")</span></td>
+                    <td>
+                        <div class="td-actions">
+                            <a href="/admin/announcementadmin/edit/@a.AnnouncementId" class="btn-admin-edit"><i class='bx bx-edit'></i>Edit</a>
+                            <button class="btn-admin-delete" data-ajax-delete="/admin/announcementadmin/delete?id=@a.AnnouncementId" data-label="this announcement"><i class='bx bx-trash'></i></button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+*@

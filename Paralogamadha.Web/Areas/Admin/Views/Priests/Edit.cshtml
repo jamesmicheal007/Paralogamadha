@@ -1,0 +1,114 @@
+@* ============================================================
+   Areas/Admin/Views/Priests/Edit.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = Model != null && ((Paralogamadha.Core.Models.Priest)Model).PriestId > 0 ? "Edit Priest" : "Add Priest";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var p     = Model as Paralogamadha.Core.Models.Priest ?? new Paralogamadha.Core.Models.Priest();
+    var langs = ViewBag.Languages as IEnumerable<Paralogamadha.Core.Models.Language>;
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <a href="/admin/priestadmin">Priests</a><span class="sep mx-2">/</span>
+    <span class="current">@ViewBag.Title</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-user'></i>@ViewBag.Title</div></div>
+            <div class="panel-body">
+                @using (Html.BeginForm("Save", "PriestAdmin", new { area = "Admin" }, FormMethod.Post, new { enctype = "multipart/form-data" })) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="PriestId" value="@p.PriestId" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Full Name <span class="required">*</span></label>
+                            <input type="text" class="admin-input" name="FullName" value="@p.FullName" required placeholder="e.g. Joseph Arockiam" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Title / Salutation</label>
+                            <input type="text" class="admin-input" name="Title" value="@p.Title" placeholder="e.g. Rev. Fr., Msgr., Bishop" />
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Language</label>
+                            <select class="admin-select" name="LanguageId">
+                                @if (langs != null) {
+                                    foreach (var l in langs) {
+                                        <option value="@l.LanguageId" @(p.LanguageId==l.LanguageId?"selected":"")>@l.DisplayName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Start Date</label>
+                            <input type="date" class="admin-input" name="StartDate"
+                                   value="@(p.StartDate.HasValue ? p.StartDate.Value.ToString("yyyy-MM-dd") : "")" />
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">End Date</label>
+                            <input type="date" class="admin-input" name="EndDate"
+                                   value="@(p.EndDate.HasValue ? p.EndDate.Value.ToString("yyyy-MM-dd") : "")" />
+                            <div class="form-hint">Leave blank if currently serving</div>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Sort Order</label>
+                            <input type="number" class="admin-input" name="SortOrder" value="@p.SortOrder" min="0" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="admin-label">Is Current Parish Priest?</label>
+                            <select class="admin-select" name="IsCurrent">
+                                <option value="true"  @(p.IsCurrent ?"selected":"")>Yes — Currently Serving</option>
+                                <option value="false" @(!p.IsCurrent?"selected":"")>No — Former Priest</option>
+                            </select>
+                        </div>
+
+                        @* Photo *@
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Photo @(p.PriestId>0?"(leave blank to keep current)":"")</label>
+                            <div class="img-upload-wrap">
+                                <input type="file" name="Photo" accept="image/jpeg,image/png,image/webp" />
+                                <div class="img-upload-icon"><i class='bx bx-user-circle'></i></div>
+                                <div class="img-upload-text"><strong>Upload photo</strong> — JPG/PNG, max 5MB</div>
+                                <img class="img-preview" src="@p.PhotoUrl" alt=""
+                                     @(!string.IsNullOrEmpty(p.PhotoUrl) ? "style='display:block'" : "") />
+                            </div>
+                            @if (p.PriestId > 0 && !string.IsNullOrEmpty(p.PhotoUrl)) {
+                                <input type="hidden" name="PhotoUrl" value="@p.PhotoUrl" />
+                            }
+                        </div>
+
+                        @* Bio — Quill *@
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Biography</label>
+                            <input type="hidden" name="Bio" id="BioHidden" value="@p.Bio" />
+                            <div class="admin-quill-wrap">
+                                <div class="quill-editor" data-target="BioHidden" style="min-height:160px"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save</button>
+                        <a href="/admin/priestadmin" class="btn btn-secondary">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-info-circle'></i>Notes</div></div>
+            <div class="panel-body p-3">
+                <ul style="padding-left:16px;font-size:.85rem;color:var(--admin-muted);line-height:1.9">
+                    <li>Mark only one priest as "Currently Serving"</li>
+                    <li>Leave End Date blank for the current priest</li>
+                    <li>Sort Order 1 = shown first on the public page</li>
+                    <li>Use portrait photos for best display (e.g. 400×500px)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

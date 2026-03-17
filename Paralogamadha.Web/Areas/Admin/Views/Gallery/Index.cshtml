@@ -1,0 +1,98 @@
+@* ============================================================
+   Areas/Admin/Views/Gallery/Index.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Photo Gallery";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var albums     = Model as IEnumerable<Paralogamadha.Core.Models.GalleryAlbum>;
+    var categories = ViewBag.Categories as IEnumerable<Paralogamadha.Core.Models.GalleryCategory>;
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Gallery</span>
+</div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-photo-album'></i>Gallery Albums</div>
+        <a href="/admin/galleryadmin/createalbum" class="btn-admin-primary">
+            <i class='bx bx-plus'></i>New Album
+        </a>
+    </div>
+
+    @* Category filter *@
+    <div class="admin-filter-bar">
+        <span style="font-size:.82rem;color:var(--admin-muted);font-weight:600">Filter:</span>
+        <a href="/admin/galleryadmin" class="filter-chip @(Request.QueryString["cat"]==null?"active":"")">All</a>
+        @if (categories != null) {
+            foreach (var cat in categories) {
+                <a href="/admin/galleryadmin?cat=@cat.CategoryId" class="filter-chip @(Request.QueryString["cat"]==cat.CategoryId.ToString()?"active":"")">@cat.CategoryName</a>
+            }
+        }
+    </div>
+
+    <div class="panel-body">
+        @if (albums != null && albums.Any()) {
+        <div class="row g-3">
+            @foreach (var album in albums) {
+            <div class="col-md-6 col-lg-4 col-xl-3" data-deletable>
+                <div class="admin-panel" style="overflow:hidden">
+                    @* Cover image *@
+                    <div style="height:160px;overflow:hidden;background:var(--admin-bg);position:relative">
+                        @if (!string.IsNullOrEmpty(album.CoverImageUrl)) {
+                            <img src="@album.CoverImageUrl" alt="@album.AlbumName"
+                                 style="width:100%;height:100%;object-fit:cover" loading="lazy" />
+                        } else {
+                            <div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#cbd5e1">
+                                <i class='bx bx-images'></i>
+                            </div>
+                        }
+                        <div style="position:absolute;top:8px;right:8px">
+                            <span class="status-badge @(album.IsPublished?"badge-approved":"badge-pending")">
+                                @(album.IsPublished ? "Published" : "Draft")
+                            </span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(album.CategoryName)) {
+                            <div style="position:absolute;top:8px;left:8px">
+                                <span class="status-badge badge-active">@album.CategoryName</span>
+                            </div>
+                        }
+                    </div>
+                    <div class="p-3">
+                        <div style="font-weight:700;color:var(--admin-navy);margin-bottom:4px;font-size:.92rem">@album.AlbumName</div>
+                        <div style="font-size:.78rem;color:var(--admin-muted);margin-bottom:12px">
+                            <i class='bx bx-images me-1'></i>@album.PhotoCount photos
+                            @if (album.EventDate.HasValue) {
+                                <span class="ms-2"><i class='bx bx-calendar me-1'></i>@album.EventDate.Value.ToString("dd MMM yyyy")</span>
+                            }
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="/admin/galleryadmin/albumdetail/@album.AlbumId" class="btn-admin-view flex-fill text-center" style="padding:6px">
+                                <i class='bx bx-images'></i>Photos
+                            </a>
+                            <a href="/admin/galleryadmin/editalbum/@album.AlbumId" class="btn-admin-edit" style="padding:6px 10px">
+                                <i class='bx bx-edit'></i>
+                            </a>
+                            <button class="btn-admin-delete"
+                                    data-ajax-delete="/admin/galleryadmin/deletealbum?id=@album.AlbumId"
+                                    data-label="album '@album.AlbumName'" style="padding:6px 10px">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        } else {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class='bx bx-photo-album'></i></div>
+                <h5>No albums yet</h5>
+                <p>Create your first gallery album to get started.</p>
+                <a href="/admin/galleryadmin/createalbum" class="btn-admin-primary mt-3">
+                    <i class='bx bx-plus'></i>Create Album
+                </a>
+            </div>
+        }
+    </div>
+</div>

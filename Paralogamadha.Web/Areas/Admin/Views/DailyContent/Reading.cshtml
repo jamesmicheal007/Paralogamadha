@@ -1,0 +1,120 @@
+@* ============================================================
+   Areas/Admin/Views/DailyContent/Reading.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Reading of the Day";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var r     = Model as Paralogamadha.Core.Models.ReadingOfDay ?? new Paralogamadha.Core.Models.ReadingOfDay { ReadingDate = DateTime.Today };
+    var langs = ViewBag.Languages as IEnumerable<Paralogamadha.Core.Models.Language>;
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Reading of the Day</span>
+</div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-book-open'></i>Reading of the Day</div>
+        <input type="date" class="admin-input" style="width:auto;padding:6px 12px"
+               value="@r.ReadingDate.ToString("yyyy-MM-dd")"
+               onchange="window.location='/admin/dailycontentadmin/reading?date='+this.value" />
+    </div>
+    <div class="panel-body">
+        @using (Html.BeginForm("SaveReading", "DailyContentAdmin", new { area = "Admin" }, FormMethod.Post)) {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ReadingId"   value="@r.ReadingId" />
+            <input type="hidden" name="ReadingDate" value="@r.ReadingDate.ToString("yyyy-MM-dd")" />
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6 form-group">
+                    <label class="admin-label">Language</label>
+                    <select class="admin-select" name="LanguageId">
+                        @if (langs != null) {
+                            foreach (var l in langs) {
+                                <option value="@l.LanguageId" @(r.LanguageId==l.LanguageId?"selected":"")>@l.DisplayName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 form-group">
+                    <label class="admin-label">Liturgical Color</label>
+                    <select class="admin-select" name="LiturgicalColor">
+                        <option value="green"  @(r.LiturgicalColor=="green" ?"selected":"")>🟢 Green (Ordinary Time)</option>
+                        <option value="red"    @(r.LiturgicalColor=="red"   ?"selected":"")>🔴 Red (Martyrs/Pentecost)</option>
+                        <option value="purple" @(r.LiturgicalColor=="purple"?"selected":"")>🟣 Purple (Advent/Lent)</option>
+                        <option value="white"  @(r.LiturgicalColor=="white" ?"selected":"")>⚪ White (Feasts)</option>
+                        <option value="rose"   @(r.LiturgicalColor=="rose"  ?"selected":"")>🌸 Rose</option>
+                        <option value="gold"   @(r.LiturgicalColor=="gold"  ?"selected":"")>🟡 Gold (Christmas/Easter)</option>
+                    </select>
+                </div>
+                <div class="col-md-2 form-group">
+                    <label class="admin-label">Source</label>
+                    <input type="text" class="admin-input" name="Source" value="@r.Source" placeholder="USCCB" />
+                </div>
+            </div>
+
+            @* Reading tabs in admin *@
+            <ul class="nav nav-tabs mb-0" style="border-color:#e2e8f0">
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#adm-first">1st Reading</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#adm-psalm">Psalm</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#adm-second">2nd Reading</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#adm-gospel">Gospel</a></li>
+            </ul>
+            <div class="tab-content p-3" style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px">
+                <div class="tab-pane fade show active" id="adm-first">
+                    <div class="row g-3">
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Reference</label>
+                            <input type="text" class="admin-input" name="FirstReadingRef" value="@r.FirstReadingRef" placeholder="e.g. Isaiah 40:1-5" />
+                        </div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Text</label>
+                            <textarea class="admin-input" name="FirstReading" rows="8" style="font-family:'Palatino Linotype',serif;font-size:.95rem">@r.FirstReading</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="adm-psalm">
+                    <div class="row g-3">
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Psalm Reference</label>
+                            <input type="text" class="admin-input" name="PsalmRef" value="@r.PsalmRef" placeholder="e.g. Psalm 85:9-14" />
+                        </div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Psalm Text</label>
+                            <textarea class="admin-input" name="Psalm" rows="6" style="font-family:'Palatino Linotype',serif;font-size:.95rem">@r.Psalm</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="adm-second">
+                    <div class="row g-3">
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Reference</label>
+                            <input type="text" class="admin-input" name="SecondReadingRef" value="@r.SecondReadingRef" placeholder="e.g. Romans 8:14-17" />
+                        </div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Text</label>
+                            <textarea class="admin-input" name="SecondReading" rows="8" style="font-family:'Palatino Linotype',serif;font-size:.95rem">@r.SecondReading</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="adm-gospel">
+                    <div class="row g-3">
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Gospel Reference <span class="required">*</span></label>
+                            <input type="text" class="admin-input" name="GospelRef" value="@r.GospelRef" placeholder="e.g. Luke 3:1-6" />
+                        </div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Gospel Text</label>
+                            <textarea class="admin-input" name="Gospel" rows="10" style="font-family:'Palatino Linotype',serif;font-size:.95rem">@r.Gospel</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 mt-4">
+                <button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save Reading</button>
+                <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+            </div>
+        }
+    </div>
+</div>

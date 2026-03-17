@@ -1,0 +1,268 @@
+/* ============================================================
+   Paralogamadha Basilica — animations.css
+   Micro-animations, keyframes, entrance effects
+   ============================================================ */
+
+/* ── Page Load Fade ─────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.anim-fade-up   { animation: fadeInUp   0.7s cubic-bezier(0.4,0,0.2,1) both; }
+.anim-fade-down { animation: fadeInDown 0.7s cubic-bezier(0.4,0,0.2,1) both; }
+.anim-fade-left { animation: fadeInLeft 0.7s cubic-bezier(0.4,0,0.2,1) both; }
+.anim-fade-right{ animation: fadeInRight 0.7s cubic-bezier(0.4,0,0.2,1) both; }
+.anim-scale-in  { animation: scaleIn    0.6s cubic-bezier(0.4,0,0.2,1) both; }
+.anim-delay-1   { animation-delay: 0.1s; }
+.anim-delay-2   { animation-delay: 0.2s; }
+.anim-delay-3   { animation-delay: 0.3s; }
+.anim-delay-4   { animation-delay: 0.4s; }
+.anim-delay-5   { animation-delay: 0.5s; }
+
+/* ── Cross Pulse (decorative) ───────────────────────────────── */
+@keyframes crossPulse {
+  0%,100% { opacity: 0.06; transform: scale(1) rotate(0deg); }
+  50%     { opacity: 0.10; transform: scale(1.04) rotate(3deg); }
+}
+.cross-bg {
+  pointer-events: none;
+  position: absolute;
+  font-size: clamp(200px, 30vw, 360px);
+  opacity: 0.06;
+  color: currentColor;
+  animation: crossPulse 8s ease-in-out infinite;
+  user-select: none;
+  z-index: 0;
+}
+
+/* ── Shimmer (skeleton loader) ──────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 1.8s infinite;
+  border-radius: 6px;
+}
+.skeleton-text { height: 14px; margin-bottom: 8px; }
+.skeleton-title { height: 24px; width: 60%; margin-bottom: 16px; }
+.skeleton-img   { height: 200px; }
+
+/* ── Hover Lift ──────────────────────────────────────────────── */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1),
+              box-shadow 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 48px rgba(27,42,91,0.14);
+}
+
+/* ── Gradient Text ───────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #1B2A5B 0%, #C8922A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Gold Glow ───────────────────────────────────────────────── */
+@keyframes goldGlow {
+  0%,100% { box-shadow: 0 0 12px rgba(200,146,42,0.3); }
+  50%     { box-shadow: 0 0 28px rgba(200,146,42,0.6); }
+}
+.gold-glow { animation: goldGlow 3s ease-in-out infinite; }
+
+/* ── Ripple Button ───────────────────────────────────────────── */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+.ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%);
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.4s;
+}
+.ripple:active::after {
+  transform: scale(2.5);
+  opacity: 1;
+  transition: 0s;
+}
+
+/* ── Floating Cross ──────────────────────────────────────────── */
+@keyframes floatCross {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  33%     { transform: translateY(-14px) rotate(2deg); }
+  66%     { transform: translateY(-7px) rotate(-1deg); }
+}
+.float-cross {
+  animation: floatCross 6s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* ── Spinner ─────────────────────────────────────────────────── */
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.pbl-spinner {
+  width: 28px; height: 28px;
+  border: 3px solid rgba(27,42,91,0.15);
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+.pbl-spinner-sm {
+  width: 18px; height: 18px;
+  border-width: 2px;
+}
+
+/* ── Notification Toast ──────────────────────────────────────── */
+@keyframes toastSlide {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.pbl-toast {
+  position: fixed;
+  bottom: 88px; right: 24px;
+  background: var(--white);
+  border-left: 4px solid var(--navy);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-lg);
+  padding: 16px 20px;
+  min-width: 280px;
+  max-width: 380px;
+  z-index: 9999;
+  animation: toastSlide 0.4s cubic-bezier(0.4,0,0.2,1) both;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.pbl-toast.success { border-left-color: #16a34a; }
+.pbl-toast.error   { border-left-color: #dc2626; }
+.pbl-toast.warning { border-left-color: #d97706; }
+.toast-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+.toast-title { font-weight: 700; font-size: 0.9rem; color: var(--navy); }
+.toast-msg   { font-size: 0.82rem; color: var(--muted); }
+
+/* ── Image Zoom (gallery) ────────────────────────────────────── */
+.zoom-wrap { overflow: hidden; display: block; }
+.zoom-wrap img {
+  transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.zoom-wrap:hover img { transform: scale(1.07); }
+
+/* ── Liturgical Color Bar ────────────────────────────────────── */
+.liturgical-bar {
+  height: 5px;
+  border-radius: 0 0 4px 4px;
+  width: 100%;
+}
+.liturgical-green  { background: linear-gradient(90deg, #16a34a, #4ade80); }
+.liturgical-red    { background: linear-gradient(90deg, #dc2626, #f87171); }
+.liturgical-purple { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+.liturgical-white  { background: linear-gradient(90deg, #e2e8f0, #f8fafc); }
+.liturgical-rose   { background: linear-gradient(90deg, #db2777, #f472b6); }
+.liturgical-gold   { background: linear-gradient(90deg, #C8922A, #e4b040); }
+
+/* ── Reading Tabs (Daily Readings) ───────────────────────────── */
+.reading-tabs .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--muted);
+  transition: all 0.25s;
+}
+.reading-tabs .nav-link.active {
+  color: var(--navy);
+  border-bottom-color: var(--gold);
+  background: transparent;
+}
+.reading-content {
+  background: #fffdf6;
+  border: 1px solid #f0e8cc;
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  padding: 28px;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: #2d2a22;
+  white-space: pre-line;
+}
+.reading-ref {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+/* ── Priest Flip Card ─────────────────────────────────────────── */
+.priest-flip {
+  perspective: 1000px;
+  height: 380px;
+}
+.priest-flip-inner {
+  position: relative;
+  width: 100%; height: 100%;
+  transition: transform 0.7s cubic-bezier(0.4,0,0.2,1);
+  transform-style: preserve-3d;
+}
+.priest-flip:hover .priest-flip-inner { transform: rotateY(180deg); }
+.priest-flip-front,
+.priest-flip-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+.priest-flip-back {
+  transform: rotateY(180deg);
+  background: var(--navy);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px;
+  text-align: center;
+  color: var(--white);
+}
+.priest-flip-back h4 { color: var(--gold-light); margin-bottom: 12px; }
+.priest-flip-back p { font-size: 0.9rem; opacity: 0.85; line-height: 1.7; }
+.priest-flip-back .tenure { font-size: 0.78rem; opacity: 0.6; margin-top: 12px; }
+
+/* ── Typing Effect Cursor ─────────────────────────────────────── */
+.typing-cursor::after {
+  content: '|';
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+  color: var(--gold);
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }

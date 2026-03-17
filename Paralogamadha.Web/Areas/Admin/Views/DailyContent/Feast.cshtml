@@ -1,0 +1,161 @@
+@* ============================================================
+   Areas/Admin/Views/DailyContent/Feast.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Feast of the Day";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var feast = Model as Paralogamadha.Core.Models.FeastOfDay ?? new Paralogamadha.Core.Models.FeastOfDay { FeastDate = DateTime.Today };
+    var langs = ViewBag.Languages as IEnumerable<Paralogamadha.Core.Models.Language>;
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Feast of the Day</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class='bx bx-sun'></i>Feast of the Day</div>
+                @* Date picker for navigating other dates *@
+                <input type="date" class="admin-input" id="feastDatePicker" style="width:auto;padding:6px 12px"
+                       value="@feast.FeastDate.ToString("yyyy-MM-dd")"
+                       onchange="window.location='/admin/dailycontentadmin/feast?date='+this.value" />
+            </div>
+            <div class="panel-body">
+                @using (Html.BeginForm("SaveFeast", "DailyContentAdmin", new { area = "Admin" }, FormMethod.Post, new { enctype = "multipart/form-data" })) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="FeastId"   value="@feast.FeastId" />
+                    <input type="hidden" name="FeastDate" value="@feast.FeastDate.ToString("yyyy-MM-dd")" />
+
+                    <div class="row g-3">
+                        <div class="col-md-8 form-group">
+                            <label class="admin-label">Saint / Feast Name <span class="required">*</span></label>
+                            <input type="text" class="admin-input" name="SaintName" value="@feast.SaintName" required
+                                   placeholder="e.g. Our Lady of Assumption" />
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Language</label>
+                            <select class="admin-select" name="LanguageId">
+                                @if (langs != null) {
+                                    foreach (var l in langs) {
+                                        <option value="@l.LanguageId" @(feast.LanguageId==l.LanguageId?"selected":"")>@l.DisplayName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Description</label>
+                            <input type="hidden" name="Description" id="FeastDescHidden" value="@feast.Description" />
+                            <div class="admin-quill-wrap">
+                                <div class="quill-editor" data-target="FeastDescHidden" style="min-height:180px"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Saint Image @(feast.FeastId>0?"(leave blank to keep current)":"")</label>
+                            <div class="img-upload-wrap">
+                                <input type="file" name="Image" accept="image/jpeg,image/png,image/webp" />
+                                <div class="img-upload-icon"><i class='bx bx-image'></i></div>
+                                <div class="img-upload-text"><strong>Upload image</strong> — JPG/PNG/WEBP, max 5MB</div>
+                                <img class="img-preview" src="@feast.ImageUrl" alt=""
+                                     @(!string.IsNullOrEmpty(feast.ImageUrl)?"style='display:block'":"") />
+                            </div>
+                            @if (feast.FeastId > 0 && !string.IsNullOrEmpty(feast.ImageUrl)) {
+                                <input type="hidden" name="ImageUrl" value="@feast.ImageUrl" />
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save Feast</button>
+                        <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-link-alt'></i>Other Daily Content</div></div>
+            <div class="panel-body p-3 d-grid gap-2">
+                <a href="/admin/dailycontentadmin/reading" class="btn-admin-primary"><i class='bx bx-book-open'></i>Manage Today's Reading</a>
+                <a href="/admin/dailycontentadmin/thought" class="btn-admin-gold"><i class='bx bx-bulb'></i>Manage Today's Thought</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* ============================================================
+   Areas/Admin/Views/DailyContent/Thought.cshtml
+   ============================================================ *@
+@*
+@{
+    ViewBag.Title = "Thought of the Day";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var thought = Model as Paralogamadha.Core.Models.ThoughtOfDay ?? new Paralogamadha.Core.Models.ThoughtOfDay { ThoughtDate = DateTime.Today };
+    var langs   = ViewBag.Languages as IEnumerable<Paralogamadha.Core.Models.Language>;
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span><span class="current">Thought of the Day</span>
+</div>
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="admin-panel">
+      <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-bulb'></i>Thought of the Day</div>
+        <input type="date" class="admin-input" style="width:auto;padding:6px 12px"
+               value="@thought.ThoughtDate.ToString("yyyy-MM-dd")"
+               onchange="window.location='/admin/dailycontentadmin/thought?date='+this.value" />
+      </div>
+      <div class="panel-body">
+        @using (Html.BeginForm("SaveThought", "DailyContentAdmin", new { area = "Admin" }, FormMethod.Post, new { enctype = "multipart/form-data" })) {
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="ThoughtId"   value="@thought.ThoughtId" />
+          <input type="hidden" name="ThoughtDate" value="@thought.ThoughtDate.ToString("yyyy-MM-dd")" />
+          <div class="row g-3">
+            <div class="col-12 form-group">
+              <label class="admin-label">Quote / Thought <span class="required">*</span></label>
+              <textarea class="admin-input" name="Quote" rows="4" required
+                        placeholder="Enter today's inspirational thought…">@thought.Quote</textarea>
+            </div>
+            <div class="col-md-6 form-group">
+              <label class="admin-label">Attribution</label>
+              <input type="text" class="admin-input" name="Attribution" value="@thought.Attribution"
+                     placeholder="e.g. Pope Francis, Matthew 5:9" />
+            </div>
+            <div class="col-md-6 form-group">
+              <label class="admin-label">Language</label>
+              <select class="admin-select" name="LanguageId">
+                @foreach (var l in langs ?? Enumerable.Empty<Paralogamadha.Core.Models.Language>()) {
+                  <option value="@l.LanguageId" @(thought.LanguageId==l.LanguageId?"selected":"")>@l.DisplayName</option>
+                }
+              </select>
+            </div>
+            <div class="col-12 form-group">
+              <label class="admin-label">Background Image (optional)</label>
+              <div class="img-upload-wrap">
+                <input type="file" name="BgImage" accept="image/jpeg,image/png,image/webp" />
+                <div class="img-upload-icon"><i class='bx bx-image'></i></div>
+                <div class="img-upload-text"><strong>Upload background</strong></div>
+                <img class="img-preview" src="@thought.BackgroundImageUrl" alt=""
+                     @(!string.IsNullOrEmpty(thought.BackgroundImageUrl)?"style='display:block'":"") />
+              </div>
+              @if (thought.ThoughtId > 0 && !string.IsNullOrEmpty(thought.BackgroundImageUrl)) {
+                <input type="hidden" name="BackgroundImageUrl" value="@thought.BackgroundImageUrl" />
+              }
+            </div>
+          </div>
+          <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save Thought</button>
+            <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+*@

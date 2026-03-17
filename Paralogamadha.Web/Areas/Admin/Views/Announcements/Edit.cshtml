@@ -1,0 +1,109 @@
+@* ============================================================
+   Areas/Admin/Views/Announcements/Edit.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = Model != null && ((Paralogamadha.Core.Models.Announcement)Model).AnnouncementId > 0 ? "Edit Announcement" : "New Announcement";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var a     = Model as Paralogamadha.Core.Models.Announcement ?? new Paralogamadha.Core.Models.Announcement { PublishDate = DateTime.Now };
+    var langs = ViewBag.Languages as IEnumerable<Paralogamadha.Core.Models.Language>;
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <a href="/admin/announcementadmin">Announcements</a><span class="sep mx-2">/</span>
+    <span class="current">@ViewBag.Title</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class='bx bx-bell'></i>@ViewBag.Title</div>
+            </div>
+            <div class="panel-body">
+                @using (Html.BeginForm("Save", "AnnouncementAdmin", new { area = "Admin" }, FormMethod.Post, new { @class = "needs-validation" })) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="AnnouncementId" value="@a.AnnouncementId" />
+
+                    <div class="row g-3">
+                        <div class="col-md-8 form-group">
+                            <label class="admin-label">Title <span class="required">*</span></label>
+                            <input type="text" class="admin-input" name="Title" value="@a.Title" required placeholder="Announcement title" />
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Priority</label>
+                            <select class="admin-select" name="Priority">
+                                <option value="1" @(a.Priority==1?"selected":"")>Normal</option>
+                                <option value="2" @(a.Priority==2?"selected":"")>Important</option>
+                                <option value="3" @(a.Priority==3?"selected":"")>Urgent</option>
+                            </select>
+                        </div>
+
+                        @* Body — Quill editor *@
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Body Content</label>
+                            <input type="hidden" name="Body" id="BodyHidden" value="@a.Body" />
+                            <div class="admin-quill-wrap">
+                                <div class="quill-editor" data-target="BodyHidden" style="min-height:200px"></div>
+                            </div>
+                            <div class="form-hint">HTML content is sanitized automatically on save.</div>
+                        </div>
+
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Language</label>
+                            <select class="admin-select" name="LanguageId">
+                                @if (langs != null) {
+                                    foreach (var l in langs) {
+                                        <option value="@l.LanguageId" @(a.LanguageId==l.LanguageId?"selected":"")>@l.DisplayName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Publish Date <span class="required">*</span></label>
+                            <input type="datetime-local" class="admin-input" name="PublishDate"
+                                   value="@a.PublishDate.ToString("yyyy-MM-ddTHH:mm")" required />
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Expiry Date</label>
+                            <input type="datetime-local" class="admin-input" name="ExpiryDate"
+                                   value="@(a.ExpiryDate.HasValue ? a.ExpiryDate.Value.ToString("yyyy-MM-ddTHH:mm") : "")" />
+                            <div class="form-hint">Leave blank = never expires</div>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="admin-label">Status</label>
+                            <select class="admin-select" name="IsActive">
+                                <option value="true"  @(a.IsActive ?"selected":"")>Active</option>
+                                <option value="false" @(!a.IsActive?"selected":"")>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save Announcement</button>
+                        <a href="/admin/announcementadmin" class="btn btn-secondary">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-info-circle'></i>Priority Guide</div></div>
+            <div class="panel-body p-3">
+                <div class="d-flex align-items-center gap-2 mb-2 p-2 rounded" style="background:#f8fafc">
+                    <span class="status-badge badge-approved">Normal</span>
+                    <span style="font-size:.82rem;color:var(--admin-muted)">Regular parish news & updates</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-2 p-2 rounded" style="background:#fff8eb">
+                    <span class="status-badge badge-pending">Important</span>
+                    <span style="font-size:.82rem;color:var(--admin-muted)">Special events, schedule changes</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 p-2 rounded" style="background:#fef2f2">
+                    <span class="status-badge badge-rejected">Urgent</span>
+                    <span style="font-size:.82rem;color:var(--admin-muted)">Time-sensitive, shown at top of ticker</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

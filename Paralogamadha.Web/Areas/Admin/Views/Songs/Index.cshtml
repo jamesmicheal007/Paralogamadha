@@ -1,0 +1,71 @@
+@* ============================================================
+   Areas/Admin/Views/Songs/Index.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Songs";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var songs = Model as IEnumerable<Song> ?? Enumerable.Empty<Song>();
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Songs</span>
+</div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-music'></i>Songs</div>
+        <a href="/admin/songsadmin/create" class="btn-admin-primary"><i class='bx bx-plus'></i>Add Song</a>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead>
+                <tr><th>Title</th><th>Category</th><th>Duration</th><th>Audio</th><th>Lyrics</th><th>Published</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var s in songs) {
+                <tr>
+                    <td style="font-weight:600">@s.Title</td>
+                    <td><span class="status-badge badge-active">@s.CategoryName</span></td>
+                    <td style="font-size:.82rem;white-space:nowrap">
+                        @(s.Duration.HasValue && s.Duration > 0
+                            ? TimeSpan.FromSeconds(s.Duration.Value).ToString(@"mm\:ss")
+                            : "—")
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(s.AudioFileUrl)) {
+                            <span style="color:var(--admin-success)"><i class='bx bx-check-circle'></i></span>
+                        } else {
+                            <span style="color:var(--admin-muted);font-size:.78rem">No file</span>
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(s.Lyrics)) {
+                            <span style="color:var(--admin-success)"><i class='bx bx-check-circle'></i></span>
+                        } else {
+                            <span style="color:var(--admin-muted);font-size:.78rem">None</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="status-badge @(s.IsPublished?"badge-approved":"badge-rejected")">
+                            @(s.IsPublished ? "Published" : "Draft")
+                        </span>
+                    </td>
+                    <td>
+                        <div class="td-actions">
+                            <a href="/admin/songsadmin/edit/@s.SongId" class="btn-admin-edit">
+                                <i class='bx bx-edit'></i>Edit
+                            </a>
+                            <button class="btn-admin-delete"
+                                    data-ajax-delete="/admin/songsadmin/delete?id=@s.SongId"
+                                    data-label="song '@s.Title'">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

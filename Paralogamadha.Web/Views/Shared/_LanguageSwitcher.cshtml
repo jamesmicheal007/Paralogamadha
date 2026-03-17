@@ -1,0 +1,40 @@
+@* ============================================================
+   Views/Shared/_LanguageSwitcher.cshtml
+   ============================================================ *@
+@{
+    var langs   = ViewBag.Languages as IEnumerable<Paralogamadha.Core.Models.Language>;
+    var current = ViewBag.CurrentLang as string ?? "en";
+    var currentLang = langs?.FirstOrDefault(l => l.CultureCode == current);
+    // Build current path with lang replaced
+    var path    = Request.Url?.AbsolutePath ?? "/";
+}
+
+<div class="lang-switcher">
+    <button class="lang-btn" type="button" aria-label="Language">
+        <i class='bx bx-world'></i>
+        <span>@(currentLang?.DisplayName ?? "English")</span>
+        <i class='bx bx-chevron-down' style="font-size:.85rem;opacity:.7"></i>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+        @if (langs != null) {
+            foreach (var lang in langs) {
+                @* Build the equivalent URL in the new language *@
+                var segments  = path.TrimStart('/').Split('/');
+                string newPath;
+                if (segments.Length > 0 && (segments[0] == "en" || segments[0] == "ta" || segments[0] == "hi" || segments[0] == "fr")) {
+                    segments[0] = lang.CultureCode;
+                    newPath = "/" + string.Join("/", segments);
+                } else {
+                    newPath = "/" + lang.CultureCode + path;
+                }
+                <a class="lang-option @(lang.CultureCode == current ? "active" : "")" href="@newPath">
+                    <i class='bx bx-globe me-1'></i>
+                    @lang.NativeName
+                    @if (lang.CultureCode == current) {
+                        <i class='bx bx-check ms-auto text-gold'></i>
+                    }
+                </a>
+            }
+        }
+    </div>
+</div>

@@ -1,0 +1,105 @@
+@* ============================================================
+   Areas/Admin/Views/Gallery/AlbumDetail.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Album Photos";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var photos = Model as IEnumerable<Paralogamadha.Core.Models.GalleryPhoto>;
+    var album  = ViewBag.Album as Paralogamadha.Core.Models.GalleryAlbum;
+}
+<style>
+.photo-thumb-wrap {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    background: var(--admin-bg);
+}
+.photo-thumb-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.photo-delete-btn {
+    position: absolute; top: 6px; right: 6px;
+    width: 26px; height: 26px;
+    background: rgba(220,38,38,.85);
+    color: #fff; border: none; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem; cursor: pointer;
+    opacity: 0; transition: opacity .2s;
+}
+.photo-thumb-wrap:hover .photo-delete-btn { opacity: 1; }
+</style>
+
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <a href="/admin/galleryadmin">Gallery</a><span class="sep mx-2">/</span>
+    <span class="current">@album?.AlbumName</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-12">
+        <div class="admin-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class='bx bx-images'></i>
+                    @album?.AlbumName
+                    <span class="menu-badge ms-1">@(photos?.Count() ?? 0)</span>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <a href="/admin/galleryadmin/editalbum/@album?.AlbumId" class="btn-admin-edit">
+                        <i class='bx bx-edit'></i>Edit Album
+                    </a>
+                    <a href="/admin/galleryadmin" class="btn btn-sm btn-secondary">
+                        <i class='bx bx-arrow-back me-1'></i>Back
+                    </a>
+                </div>
+            </div>
+
+            @* Upload Zone *@
+            <div class="p-4 border-bottom" style="background:#fafbfc">
+                <div class="admin-label mb-2">
+                    <i class='bx bx-cloud-upload me-1 text-gold'></i>Upload Photos
+                </div>
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="albumIdForUpload" value="@album?.AlbumId" />
+                <label class="img-upload-wrap" style="cursor:pointer;max-width:100%;padding:20px">
+                    <input type="file" id="multiPhotoUpload" multiple accept="image/jpeg,image/png,image/webp" style="display:none" />
+                    <div class="img-upload-icon" style="font-size:1.8rem"><i class='bx bx-image-add'></i></div>
+                    <div class="img-upload-text">
+                        <strong>Click or drag photos here</strong> — JPG, PNG, WEBP, Max 5MB each<br/>
+                        <span style="font-size:.75rem;color:var(--admin-muted)">Multiple files supported</span>
+                    </div>
+                </label>
+                <div class="upload-progress mt-2" id="uploadProgress">
+                    <div class="upload-progress-bar" id="uploadProgressBar"></div>
+                </div>
+            </div>
+
+            @* Photo Grid *@
+            <div class="panel-body">
+                <div class="row g-2" id="photoUploadGrid">
+                    @if (photos != null) {
+                        foreach (var p in photos) {
+                        <div class="col-6 col-sm-4 col-md-3 col-lg-2 photo-thumb-wrap" data-photo-id="@p.PhotoId">
+                            <img src="@(p.ThumbnailUrl ?? p.ImageUrl)" alt="@p.Caption" loading="lazy" />
+                            <button class="photo-delete-btn" type="button"
+                                    onclick="deletePhoto(@p.PhotoId, this)">
+                                <i class='bx bx-x'></i>
+                            </button>
+                        </div>
+                        }
+                    }
+                </div>
+                @if (photos == null || !photos.Any()) {
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-state-icon"><i class='bx bx-image'></i></div>
+                        <h5>No photos yet</h5>
+                        <p>Upload photos using the zone above.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

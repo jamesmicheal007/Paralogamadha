@@ -1,0 +1,114 @@
+@* ============================================================
+   Areas/Admin/Views/VirtualTour/Edit.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = (Model as VirtualTourScene)?.SceneId > 0 ? "Edit Scene" : "Add Scene";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var s = Model as VirtualTourScene ?? new VirtualTourScene { IsPublished = true };
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <a href="/admin/virtualtouradmin">Virtual Tour</a><span class="sep mx-2">/</span>
+    <span class="current">@ViewBag.Title</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-camera'></i>@ViewBag.Title</div></div>
+            <div class="panel-body">
+                @using (Html.BeginForm("SaveScene", "VirtualTourAdmin", new { area = "Admin" }, FormMethod.Post, new { enctype = "multipart/form-data" })) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="SceneId" value="@s.SceneId" />
+
+                    <div class="row g-3">
+                        <div class="col-md-8 form-group">
+                            <label class="admin-label">Scene Name <span class="required">*</span></label>
+                            <input type="text" class="admin-input" name="SceneName" value="@s.SceneName" required
+                                   placeholder="e.g. Main Altar, Chapel Entrance, Bell Tower" />
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label class="admin-label">Sort Order</label>
+                            <input type="number" class="admin-input" name="SortOrder" value="@s.SortOrder" min="0" />
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label class="admin-label">Status</label>
+                            <select class="admin-select" name="IsPublished">
+                                <option value="true"  @(s.IsPublished ?"selected":"")>Published</option>
+                                <option value="false" @(!s.IsPublished?"selected":"")>Draft</option>
+                            </select>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Description</label>
+                            <textarea class="admin-input" name="Description" rows="2" placeholder="Brief description of this location">@s.Description</textarea>
+                        </div>
+
+                        @* Panorama Image *@
+                        <div class="col-12 form-group">
+                            <label class="admin-label">
+                                360° Panorama Image @(s.SceneId > 0 ? "(leave blank to keep current)" : "<span class='required'>*</span>")
+                            </label>
+                            <div class="img-upload-wrap">
+                                <input type="file" name="PanoramaImage" accept="image/jpeg,image/png"
+                                       @(s.SceneId == 0 ? "required" : "") />
+                                <div class="img-upload-icon"><i class='bx bx-rotate-right'></i></div>
+                                <div class="img-upload-text">
+                                    <strong>Upload equirectangular panorama</strong><br/>
+                                    <span style="font-size:.78rem">JPEG/PNG — Minimum 4000×2000px — Max 20MB</span>
+                                </div>
+                                <img class="img-preview" src="@s.PanoramaImageUrl" alt=""
+                                     @(!string.IsNullOrEmpty(s.PanoramaImageUrl) ? "style='display:block'" : "") />
+                            </div>
+                            @if (s.SceneId > 0 && !string.IsNullOrEmpty(s.PanoramaImageUrl)) {
+                                <input type="hidden" name="PanoramaImageUrl" value="@s.PanoramaImageUrl" />
+                                <div class="form-hint">Current: @s.PanoramaImageUrl</div>
+                            }
+                        </div>
+
+                        @* Thumbnail *@
+                        <div class="col-12 form-group">
+                            <label class="admin-label">Thumbnail Image (optional — shown in scene strip)</label>
+                            <div class="img-upload-wrap" style="padding:16px">
+                                <input type="file" name="Thumbnail" accept="image/jpeg,image/png,image/webp" />
+                                <div class="img-upload-icon" style="font-size:1.5rem"><i class='bx bx-image'></i></div>
+                                <div class="img-upload-text"><strong>Upload thumbnail</strong> — 300×200px recommended</div>
+                                <img class="img-preview" src="@s.ThumbnailUrl" alt=""
+                                     @(!string.IsNullOrEmpty(s.ThumbnailUrl) ? "style='display:block'" : "") />
+                            </div>
+                            @if (s.SceneId > 0 && !string.IsNullOrEmpty(s.ThumbnailUrl)) {
+                                <input type="hidden" name="ThumbnailUrl" value="@s.ThumbnailUrl" />
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn-admin-primary"><i class='bx bx-save'></i>Save Scene</button>
+                        @if (s.SceneId > 0) {
+                            <a href="/admin/virtualtouradmin/scene/@s.SceneId" class="btn-admin-view">
+                                <i class='bx bx-target-lock'></i>Manage Hotspots
+                            </a>
+                        }
+                        <a href="/admin/virtualtouradmin" class="btn btn-secondary">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-info-circle'></i>Panorama Tips</div></div>
+            <div class="panel-body p-3">
+                <ul style="padding-left:16px;font-size:.82rem;color:var(--admin-muted);line-height:1.9">
+                    <li>Use a 360° camera or stitch photos with PTGui/Hugin</li>
+                    <li>Equirectangular format (2:1 aspect ratio) required</li>
+                    <li>Higher resolution = better quality (8000×4000 ideal)</li>
+                    <li>Optimize file size: use JPEG 85% quality</li>
+                    <li>Add hotspots after saving to link scenes together</li>
+                    <li>Sort Order 1 = first scene the visitor sees</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,181 @@
+@* ============================================================
+   Areas/Admin/Views/VirtualTour/Scene.cshtml — Hotspot manager
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Manage Hotspots";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var hotspots  = Model as IEnumerable<TourHotspot> ?? Enumerable.Empty<TourHotspot>();
+    var scene     = ViewBag.Scene     as VirtualTourScene;
+    var allScenes = ViewBag.AllScenes as IEnumerable<VirtualTourScene>;
+    var antiForgery = Html.AntiForgeryToken().ToString();
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <a href="/admin/virtualtouradmin">Virtual Tour</a><span class="sep mx-2">/</span>
+    <span class="current">@scene?.SceneName — Hotspots</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        @* Panorama preview with Pannellum *@
+        <div class="admin-panel mb-4">
+            <div class="panel-header">
+                <div class="panel-title"><i class='bx bx-rotate-right'></i>Scene Preview</div>
+                <span style="font-size:.78rem;color:var(--admin-muted)">Click the panorama to get pitch/yaw coordinates</span>
+            </div>
+            <div class="panel-body p-0">
+                <div id="hotspotPreview" style="height:360px;border-radius:0 0 12px 12px;overflow:hidden"></div>
+                <div id="coordDisplay" class="p-3 border-top" style="font-size:.82rem;color:var(--admin-muted)">
+                    Click on the panorama to capture coordinates for a new hotspot.
+                </div>
+            </div>
+        </div>
+
+        @* Existing Hotspots *@
+        <div class="admin-panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class='bx bx-target-lock'></i>Hotspots (@hotspots.Count())</div>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead><tr><th>Target Scene</th><th>Pitch</th><th>Yaw</th><th>Label</th><th>Actions</th></tr></thead>
+                    <tbody id="hotspotsList">
+                        @foreach (var h in hotspots) {
+                        <tr id="hotspot-row-@h.HotspotId">
+                            <td style="font-weight:600">@(allScenes?.FirstOrDefault(s => s.SceneId == h.TargetSceneId)?.SceneName ?? "Unknown")</td>
+                            <td>@h.PitchDegree°</td>
+                            <td>@h.YawDegree°</td>
+                            <td>@(string.IsNullOrEmpty(h.Label) ? "—" : h.Label)</td>
+                            <td>
+                                <button class="btn-admin-delete" style="padding:4px 10px"
+                                        onclick="deleteHotspot(@h.HotspotId)">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @* Add Hotspot Form *@
+    <div class="col-lg-5">
+        <div class="admin-panel">
+            <div class="panel-header"><div class="panel-title"><i class='bx bx-plus-circle'></i>Add Hotspot</div></div>
+            <div class="panel-body">
+                @Html.Raw(antiForgery)
+                <div class="form-group">
+                    <label class="admin-label">Target Scene <span class="required">*</span></label>
+                    <select class="admin-select" id="targetSceneId">
+                        <option value="">— Select scene to link to —</option>
+                        @if (allScenes != null) {
+                            foreach (var s in allScenes.Where(sc => sc.SceneId != scene?.SceneId)) {
+                                <option value="@s.SceneId">@s.SceneName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6 form-group">
+                        <label class="admin-label">Pitch (°)</label>
+                        <input type="number" class="admin-input" id="pitchInput" step="0.1"
+                               placeholder="e.g. -5.2" />
+                    </div>
+                    <div class="col-6 form-group">
+                        <label class="admin-label">Yaw (°)</label>
+                        <input type="number" class="admin-input" id="yawInput" step="0.1"
+                               placeholder="e.g. 120.5" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="admin-label">Label (shown on hotspot)</label>
+                    <input type="text" class="admin-input" id="hotspotLabel" placeholder="e.g. Go to Chapel" />
+                </div>
+                <div class="p-3 rounded-2 mb-4" style="background:#f8fafc;font-size:.82rem;color:var(--admin-muted)">
+                    <i class='bx bx-info-circle me-2'></i>
+                    Click on the panorama preview to auto-fill pitch/yaw coordinates, then select the target scene.
+                </div>
+                <button type="button" class="btn-admin-primary w-100" onclick="saveHotspot()">
+                    <i class='bx bx-plus'></i>Add Hotspot
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+<script>
+const sceneId   = @(scene?.SceneId ?? 0);
+const panorama  = '@(scene?.PanoramaImageUrl ?? "")';
+const token     = document.querySelector('[name="__RequestVerificationToken"]')?.value;
+let viewer;
+
+if (panorama) {
+    viewer = pannellum.viewer('hotspotPreview', {
+        type:      'equirectangular',
+        panorama,
+        autoLoad:  true,
+        showControls: true,
+        hfov:      100,
+        onCameraChange: function(yaw, pitch) {
+            document.getElementById('coordDisplay').textContent =
+                `Current view — Pitch: ${pitch.toFixed(2)}°  Yaw: ${yaw.toFixed(2)}°`;
+        }
+    });
+} else {
+    document.getElementById('hotspotPreview').innerHTML =
+        '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);flex-direction:column;gap:8px"><i class="bx bx-camera" style="font-size:2rem"></i><span style="font-size:.85rem">Save scene with panorama first</span></div>';
+}
+
+// Click panorama to capture coords
+document.getElementById('hotspotPreview')?.addEventListener('click', function(e) {
+    if (!viewer) return;
+    const pitch = viewer.getPitch();
+    const yaw   = viewer.getYaw();
+    document.getElementById('pitchInput').value = pitch.toFixed(2);
+    document.getElementById('yawInput').value   = yaw.toFixed(2);
+    document.getElementById('coordDisplay').innerHTML =
+        `<strong style="color:var(--admin-gold)">Captured!</strong> Pitch: ${pitch.toFixed(2)}°  Yaw: ${yaw.toFixed(2)}°`;
+});
+
+async function saveHotspot() {
+    const targetId = document.getElementById('targetSceneId').value;
+    const pitch    = document.getElementById('pitchInput').value;
+    const yaw      = document.getElementById('yawInput').value;
+    const label    = document.getElementById('hotspotLabel').value;
+    if (!targetId || pitch === '' || yaw === '') { showAdminToast('warning','Fill all required fields.'); return; }
+
+    const res  = await fetch('/admin/virtualtouradmin/savehotspot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ SceneId: sceneId, TargetSceneId: targetId, PitchDegree: pitch, YawDegree: yaw, Label: label, __RequestVerificationToken: token })
+    });
+    const json = await res.json();
+    if (json.success) {
+        showAdminToast('success','Hotspot added.');
+        setTimeout(() => location.reload(), 800);
+    } else {
+        showAdminToast('error', json.message || 'Save failed.');
+    }
+}
+
+async function deleteHotspot(id) {
+    if (!confirm('Delete this hotspot?')) return;
+    const res  = await fetch(`/admin/virtualtouradmin/deletehotspot?id=${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `__RequestVerificationToken=${encodeURIComponent(token)}`
+    });
+    const json = await res.json();
+    if (json.success) {
+        document.getElementById('hotspot-row-' + id)?.remove();
+        showAdminToast('success','Hotspot deleted.');
+    }
+}
+</script>
+}

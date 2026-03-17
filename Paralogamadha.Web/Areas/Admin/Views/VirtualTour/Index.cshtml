@@ -1,0 +1,112 @@
+@* ============================================================
+   Areas/Admin/Views/VirtualTour/Index.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Virtual Tour";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var scenes = Model as IEnumerable<VirtualTourScene> ?? Enumerable.Empty<VirtualTourScene>();
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Virtual Tour</span>
+</div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-camera'></i>Virtual Tour Scenes</div>
+        <div class="d-flex gap-2">
+            <a href="/en/virtual-tour" target="_blank" class="btn-admin-view"><i class='bx bx-show'></i>Preview Tour</a>
+            <a href="/admin/virtualtouradmin/create" class="btn-admin-primary"><i class='bx bx-plus'></i>Add Scene</a>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        @if (scenes.Any()) {
+        <div class="row g-3">
+            @foreach (var s in scenes.OrderBy(x => x.SortOrder)) {
+            <div class="col-md-6 col-lg-4">
+                <div class="admin-panel" style="overflow:hidden">
+                    <div style="height:140px;overflow:hidden;background:#0a0f1e;position:relative">
+                        @if (!string.IsNullOrEmpty(s.ThumbnailUrl)) {
+                            <img src="@s.ThumbnailUrl" alt="@s.SceneName"
+                                 style="width:100%;height:100%;object-fit:cover;opacity:.8" loading="lazy" />
+                        } else {
+                            <div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:rgba(255,255,255,.15)">
+                                <i class='bx bx-camera'></i>
+                            </div>
+                        }
+                        <span style="position:absolute;top:8px;left:8px">
+                            <span class="status-badge @(s.IsPublished?"badge-approved":"badge-pending")">
+                                @(s.IsPublished ? "Published" : "Draft")
+                            </span>
+                        </span>
+                        <span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;font-size:.72rem;padding:2px 8px;border-radius:4px">
+                            Order: @s.SortOrder
+                        </span>
+                    </div>
+                    <div class="p-3">
+                        <div style="font-weight:700;color:var(--admin-navy);margin-bottom:4px">@s.SceneName</div>
+                        @if (!string.IsNullOrEmpty(s.Description)) {
+                            <div style="font-size:.78rem;color:var(--admin-muted);margin-bottom:10px">
+                                @(s.Description.Length > 60 ? s.Description.Substring(0, 60) + "…" : s.Description)
+                            </div>
+                        }
+                        <div class="d-flex gap-2">
+                            <a href="/admin/virtualtouradmin/scene/@s.SceneId" class="btn-admin-view flex-fill text-center" style="padding:5px">
+                                <i class='bx bx-dots-horizontal-rounded'></i>Hotspots
+                            </a>
+                            <a href="/admin/virtualtouradmin/edit/@s.SceneId" class="btn-admin-edit" style="padding:5px 10px">
+                                <i class='bx bx-edit'></i>
+                            </a>
+                            <button class="btn-admin-delete" style="padding:5px 10px"
+                                    data-ajax-delete="/admin/virtualtouradmin/deletescene?id=@s.SceneId"
+                                    data-label="scene '@s.SceneName'">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        } else {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class='bx bx-camera'></i></div>
+                <h5>No scenes yet</h5>
+                <p>Upload equirectangular 360° panorama images to build the virtual tour.</p>
+                <a href="/admin/virtualtouradmin/create" class="btn-admin-primary mt-3">
+                    <i class='bx bx-plus'></i>Add First Scene
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="admin-panel mt-4">
+    <div class="panel-header"><div class="panel-title"><i class='bx bx-info-circle'></i>How Virtual Tour Works</div></div>
+    <div class="panel-body">
+        <div class="row g-4">
+            <div class="col-md-3 text-center">
+                <div style="width:52px;height:52px;background:rgba(27,42,91,.1);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--admin-navy);margin:0 auto 10px"><i class='bx bx-image-add'></i></div>
+                <div style="font-weight:700;font-size:.85rem;color:var(--admin-navy)">1. Upload Panorama</div>
+                <div style="font-size:.78rem;color:var(--admin-muted)">Equirectangular 360° JPEG (min 4000×2000px)</div>
+            </div>
+            <div class="col-md-3 text-center">
+                <div style="width:52px;height:52px;background:rgba(27,42,91,.1);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--admin-navy);margin:0 auto 10px"><i class='bx bx-target-lock'></i></div>
+                <div style="font-weight:700;font-size:.85rem;color:var(--admin-navy)">2. Add Hotspots</div>
+                <div style="font-size:.78rem;color:var(--admin-muted)">Link scenes with pitch/yaw coordinates</div>
+            </div>
+            <div class="col-md-3 text-center">
+                <div style="width:52px;height:52px;background:rgba(27,42,91,.1);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--admin-navy);margin:0 auto 10px"><i class='bx bx-sort'></i></div>
+                <div style="font-weight:700;font-size:.85rem;color:var(--admin-navy)">3. Set Order</div>
+                <div style="font-size:.78rem;color:var(--admin-muted)">First scene (Order 1) is the tour entry point</div>
+            </div>
+            <div class="col-md-3 text-center">
+                <div style="width:52px;height:52px;background:rgba(27,42,91,.1);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--admin-navy);margin:0 auto 10px"><i class='bx bx-show'></i></div>
+                <div style="font-weight:700;font-size:.85rem;color:var(--admin-navy)">4. Preview Live</div>
+                <div style="font-size:.78rem;color:var(--admin-muted)">Preview with Pannellum 360° viewer</div>
+            </div>
+        </div>
+    </div>
+</div>

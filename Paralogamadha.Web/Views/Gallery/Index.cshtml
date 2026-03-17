@@ -1,0 +1,61 @@
+@* ============================================================
+   Views/Gallery/Index.cshtml  — Public Gallery
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Photo Gallery";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var albums     = Model as IEnumerable<GalleryAlbum> ?? Enumerable.Empty<GalleryAlbum>();
+    var categories = ViewBag.Categories as IEnumerable<GalleryCategory>;
+}
+
+<section class="mass-timing-hero text-white">
+    <div class="container-fluid px-lg-5">
+        <div class="pbl-breadcrumb"><a href="/@ViewBag.CurrentLang/home">Home</a><span class="separator">/</span><span class="current">Gallery</span></div>
+        <div class="mt-3" data-aos="fade-up">
+            <div class="eyebrow mb-2" style="color:var(--gold-light);font-size:.78rem;letter-spacing:.15em;font-weight:700;text-transform:uppercase">Memories</div>
+            <h1 class="display-5 fw-bold">Photo Gallery</h1>
+        </div>
+    </div>
+</section>
+
+<section class="section-gap" style="background:var(--sky)">
+    <div class="container-fluid px-lg-5">
+        <div class="gallery-filter-bar mb-4" data-aos="fade-up">
+            <button class="filter-btn active" data-filter="all">All Events</button>
+            @if (categories != null) {
+                foreach (var cat in categories) {
+                    <button class="filter-btn" data-filter="@cat.CategoryId">@cat.CategoryName</button>
+                }
+            }
+        </div>
+
+        @if (albums.Any()) {
+        <div class="row g-4" id="albumsGrid">
+            @foreach (var album in albums) {
+            <div class="col-md-6 col-lg-4 col-xl-3" data-category="@album.CategoryId" data-aos="fade-up">
+                <a href="/@ViewBag.CurrentLang/gallery/@album.AlbumId" class="text-decoration-none album-card-link">
+                    <div class="album-card">
+                        <div class="album-cover" style="background-image:url('@(string.IsNullOrEmpty(album.CoverImageUrl) ? "/Content/images/gallery-placeholder.jpg" : album.CoverImageUrl)')">
+                            <span class="album-photo-count"><i class='bx bx-images me-1'></i>@album.PhotoCount</span>
+                        </div>
+                        <div class="album-body">
+                            @if (album.EventDate.HasValue) { <div class="album-date"><i class='bx bx-calendar me-1'></i>@album.EventDate.Value.ToString("dd MMM yyyy")</div> }
+                            <div class="album-name">@album.AlbumName</div>
+                            @if (!string.IsNullOrEmpty(album.CategoryName)) {
+                                <span class="mass-lang-badge mt-1">@album.CategoryName</span>
+                            }
+                        </div>
+                    </div>
+                </a>
+            </div>
+            }
+        </div>
+        } else {
+            <div class="text-center py-5 text-muted">
+                <i class='bx bx-photo-album' style="font-size:3rem;opacity:.3;display:block;margin-bottom:12px"></i>
+                No albums available yet.
+            </div>
+        }
+    </div>
+</section>

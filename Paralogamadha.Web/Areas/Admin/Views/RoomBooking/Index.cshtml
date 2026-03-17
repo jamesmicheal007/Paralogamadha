@@ -1,0 +1,118 @@
+@* ============================================================
+   Areas/Admin/Views/RoomBooking/Index.cshtml
+   ============================================================ *@
+@{
+    ViewBag.Title = "Room Bookings";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var bookings = Model as IEnumerable<Paralogamadha.Core.Models.RoomBooking>;
+    var rooms    = ViewBag.Rooms as IEnumerable<Paralogamadha.Core.Models.Room>;
+    var antiForgery = Html.AntiForgeryToken().ToString();
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Room Bookings</span>
+</div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-calendar'></i>Room Bookings</div>
+        <div class="d-flex gap-2">
+            <a href="?status=" class="filter-chip @(Request.QueryString["status"]==""?"active":"")">All</a>
+            <a href="?status=1" class="filter-chip @(Request.QueryString["status"]=="1"?"active":"")">Pending</a>
+            <a href="?status=2" class="filter-chip @(Request.QueryString["status"]=="2"?"active":"")">Approved</a>
+            <a href="?status=3" class="filter-chip @(Request.QueryString["status"]=="3"?"active":"")">Rejected</a>
+        </div>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead>
+                <tr><th>Ref</th><th>Name</th><th>Room</th><th>Start</th><th>End</th><th>Purpose</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                @if (bookings != null) {
+                    foreach (var b in bookings) {
+                    <tr>
+                        <td style="font-weight:700;font-size:.82rem;color:var(--admin-navy)">@b.BookingRef</td>
+                        <td>
+                            <div style="font-weight:600">@b.BookedByName</div>
+                            <div style="font-size:.78rem;color:var(--admin-muted)">@b.Email</div>
+                        </td>
+                        <td style="font-size:.85rem">@b.RoomName</td>
+                        <td style="font-size:.82rem;white-space:nowrap">@b.StartDateTime.ToString("dd MMM yyyy HH:mm")</td>
+                        <td style="font-size:.82rem;white-space:nowrap">@b.EndDateTime.ToString("dd MMM yyyy HH:mm")</td>
+                        <td style="max-width:200px;font-size:.82rem">@(b.Purpose.Length > 50 ? b.Purpose.Substring(0, 50) + "…" : b.Purpose)</td>
+                        <td><span class="status-badge @(b.StatusId==2?"badge-approved":b.StatusId==3?"badge-rejected":b.StatusId==4?"":"badge-pending")">@b.StatusLabel</span></td>
+                        <td>
+                            <button class="btn-admin-view" data-bs-toggle="modal" data-bs-target="#bookingModal_@b.BookingId">
+                                <i class='bx bx-show'></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    @* Review Modal *@
+                    <div class="modal fade" id="bookingModal_@b.BookingId" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content" style="border-radius:16px;border:none">
+                                <div class="modal-header" style="border:none;padding:24px 28px 0">
+                                    <h5 class="modal-title text-navy">Booking @b.BookingRef</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body px-4">
+                                    @Html.Raw(antiForgery)
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <div class="admin-label">Booked By</div>
+                                            <div style="font-weight:600">@b.BookedByName</div>
+                                            <div style="font-size:.85rem;color:var(--admin-muted)">@b.Email · @b.Phone</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="admin-label">Room</div>
+                                            <div style="font-weight:600">@b.RoomName</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="admin-label">Start</div>
+                                            <div>@b.StartDateTime.ToString("dddd, dd MMM yyyy — hh:mm tt")</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="admin-label">End</div>
+                                            <div>@b.EndDateTime.ToString("dddd, dd MMM yyyy — hh:mm tt")</div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="admin-label">Purpose</div>
+                                            <div style="background:#f8fafc;border-radius:8px;padding:12px;font-size:.9rem">@b.Purpose</div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="admin-label" for="bookNotes_@b.BookingId">Admin Notes (sent in email)</label>
+                                        <textarea class="admin-input" id="adminNotes_@b.BookingId" rows="2" placeholder="Optional message to the requester…">@b.AdminNotes</textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer" style="border:none;padding:0 28px 24px;gap:8px">
+                                    @if (b.StatusId == 1) {
+                                        <button class="btn-admin-approve"
+                                                data-ajax-review="/admin/roombookingadmin/review"
+                                                data-status-id="2" data-entity-id="@b.BookingId">
+                                            <i class='bx bx-check'></i>Approve &amp; Notify
+                                        </button>
+                                        <button class="btn-admin-reject"
+                                                data-ajax-review="/admin/roombookingadmin/review"
+                                                data-status-id="3" data-entity-id="@b.BookingId">
+                                            <i class='bx bx-x'></i>Reject
+                                        </button>
+                                    } else {
+                                        <span class="status-badge @(b.StatusId==2?"badge-approved":"badge-rejected") me-auto">@b.StatusLabel</span>
+                                        @if (!string.IsNullOrEmpty(b.ReviewedByName)) {
+                                            <span style="font-size:.8rem;color:var(--admin-muted)">Reviewed by @b.ReviewedByName</span>
+                                        }
+                                    }
+                                    <button class="ms-auto btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,73 @@
+@* ============================================================
+   Areas/Admin/Views/LiveTV/Index.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Live TV";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var channels = Model as IEnumerable<LiveTVChannel> ?? Enumerable.Empty<LiveTVChannel>();
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Live TV</span>
+</div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-tv'></i>Live TV Channels</div>
+        <a href="/admin/livetvadmin/create" class="btn-admin-primary"><i class='bx bx-plus'></i>Add Channel</a>
+    </div>
+    <div class="panel-body" style="padding:0">
+        @if (channels.Any()) {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr><th>Channel Name</th><th>Type</th><th>Stream URL</th><th>Order</th><th>Live Now</th><th>Active</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var ch in channels) {
+                    <tr>
+                        <td style="font-weight:700;color:var(--admin-navy)">@ch.ChannelName</td>
+                        <td><span class="status-badge badge-active">@ch.EmbedType</span></td>
+                        <td style="max-width:220px;font-size:.75rem;color:var(--admin-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                            @ch.EmbedUrl
+                        </td>
+                        <td>@ch.SortOrder</td>
+                        <td>
+                            <div class="form-check form-switch mb-0">
+                                <input type="checkbox" class="form-check-input" role="switch"
+                                       @(ch.IsLive ? "checked" : "")
+                                       data-ajax-toggle="/admin/livetvadmin/togglelive"
+                                       data-field="isLive" data-id="@ch.ChannelId" />
+                            </div>
+                            @if (ch.IsLive) {
+                                <span class="live-badge ms-1" style="font-size:.65rem;padding:2px 7px">LIVE</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="status-badge @(ch.IsActive?"badge-approved":"badge-rejected")">
+                                @(ch.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="td-actions">
+                                <a href="/admin/livetvadmin/edit/@ch.ChannelId" class="btn-admin-edit">
+                                    <i class='bx bx-edit'></i>Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        } else {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class='bx bx-tv'></i></div>
+                <h5>No channels configured</h5>
+                <p>Add a YouTube or HLS live stream channel.</p>
+                <a href="/admin/livetvadmin/create" class="btn-admin-primary mt-3"><i class='bx bx-plus'></i>Add Channel</a>
+            </div>
+        }
+    </div>
+</div>

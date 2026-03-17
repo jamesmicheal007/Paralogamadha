@@ -1,0 +1,78 @@
+@* ============================================================
+   Areas/Admin/Views/History/Index.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "History";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var content  = ViewBag.Content  as IEnumerable<HistoryContent>  ?? Enumerable.Empty<HistoryContent>();
+    var timeline = ViewBag.Timeline as IEnumerable<HistoryTimeline> ?? Enumerable.Empty<HistoryTimeline>();
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">History</span>
+</div>
+
+@* Content Sections *@
+<div class="admin-panel mb-4">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-book'></i>History Content Sections</div>
+        <a href="/admin/historyadmin/editcontent" class="btn-admin-primary"><i class='bx bx-plus'></i>Add Section</a>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead><tr><th>Order</th><th>Title</th><th>Language</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var c in content.OrderBy(x => x.SortOrder)) {
+                <tr>
+                    <td>@c.SortOrder</td>
+                    <td style="font-weight:600">@c.Title</td>
+                    <td><span class="status-badge badge-active">@c.LanguageId</span></td>
+                    <td>
+                        <div class="td-actions">
+                            <a href="/admin/historyadmin/editcontent/@c.ContentId" class="btn-admin-edit"><i class='bx bx-edit'></i>Edit</a>
+                            <button class="btn-admin-delete" data-ajax-delete="/admin/historyadmin/deletecontent?id=@c.ContentId" data-label="this section"><i class='bx bx-trash'></i></button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@* Timeline Items *@
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-time-five'></i>Timeline Milestones</div>
+        <a href="/admin/historyadmin/edittimeline" class="btn-admin-primary"><i class='bx bx-plus'></i>Add Milestone</a>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead><tr><th>Year</th><th>Title</th><th>Image</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var t in timeline.OrderBy(x => x.Year)) {
+                <tr>
+                    <td style="font-weight:800;color:var(--admin-navy);font-size:1rem">@t.Year</td>
+                    <td style="font-weight:600">@t.Title</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(t.ImageUrl)) {
+                            <div style="width:60px;height:40px;border-radius:6px;overflow:hidden">
+                                <img src="@t.ImageUrl" alt="" style="width:100%;height:100%;object-fit:cover" loading="lazy" />
+                            </div>
+                        } else {
+                            <span style="font-size:.78rem;color:var(--admin-muted)">No image</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="td-actions">
+                            <a href="/admin/historyadmin/edittimeline/@t.TimelineId" class="btn-admin-edit"><i class='bx bx-edit'></i>Edit</a>
+                            <button class="btn-admin-delete" data-ajax-delete="/admin/historyadmin/deletetimeline?id=@t.TimelineId" data-label="milestone @t.Year"><i class='bx bx-trash'></i></button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

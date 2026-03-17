@@ -1,0 +1,70 @@
+@* ============================================================
+   Areas/Admin/Views/Announcements/Index.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Announcements";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var anns = Model as IEnumerable<Announcement> ?? Enumerable.Empty<Announcement>();
+}
+<div class="admin-breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a><span class="sep mx-2">/</span>
+    <span class="current">Announcements</span>
+</div>
+
+<div class="admin-panel">
+    <div class="panel-header">
+        <div class="panel-title"><i class='bx bx-bell'></i>Announcements</div>
+        <a href="/admin/announcementadmin/create" class="btn-admin-primary">
+            <i class='bx bx-plus'></i>New Announcement
+        </a>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table data-table">
+            <thead>
+                <tr><th>Title</th><th>Priority</th><th>Publish Date</th><th>Expiry</th><th>Language</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var a in anns) {
+                <tr>
+                    <td>
+                        <div style="font-weight:600;max-width:260px">@a.Title</div>
+                        @if (!string.IsNullOrEmpty(a.Body)) {
+                            <div style="font-size:.75rem;color:var(--admin-muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical">
+                                @System.Text.RegularExpressions.Regex.Replace(a.Body, "<.*?>", "")
+                            </div>
+                        }
+                    </td>
+                    <td>
+                        <span class="status-badge @(a.Priority==3?"badge-rejected":a.Priority==2?"badge-pending":"")">
+                            @a.PriorityLabel
+                        </span>
+                    </td>
+                    <td style="font-size:.82rem;white-space:nowrap">@a.PublishDate.ToString("dd MMM yyyy HH:mm")</td>
+                    <td style="font-size:.82rem;white-space:nowrap">
+                        @(a.ExpiryDate.HasValue ? a.ExpiryDate.Value.ToString("dd MMM yyyy") : "Never")
+                    </td>
+                    <td><span class="status-badge badge-active" style="font-size:.72rem">@a.LanguageName</span></td>
+                    <td>
+                        <span class="status-badge @(a.IsActive ? "badge-approved" : "badge-rejected")">
+                            @(a.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </td>
+                    <td>
+                        <div class="td-actions">
+                            <a href="/admin/announcementadmin/edit/@a.AnnouncementId" class="btn-admin-edit">
+                                <i class='bx bx-edit'></i>Edit
+                            </a>
+                            <button class="btn-admin-delete"
+                                    data-ajax-delete="/admin/announcementadmin/delete?id=@a.AnnouncementId"
+                                    data-label="announcement '@a.Title'">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

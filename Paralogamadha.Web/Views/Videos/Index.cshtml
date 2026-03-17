@@ -1,0 +1,90 @@
+@* ============================================================
+   Views/Videos/Index.cshtml
+   ============================================================ *@
+@using Paralogamadha.Core.Models
+@{
+    ViewBag.Title = "Videos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as IEnumerable<VideoCategory>;
+    var videos     = Model as IEnumerable<Video> ?? Enumerable.Empty<Video>();
+}
+
+<section class="mass-timing-hero text-white">
+    <div class="container-fluid px-lg-5">
+        <div class="pbl-breadcrumb"><a href="/@ViewBag.CurrentLang/home">Home</a><span class="separator">/</span><span class="current">Videos</span></div>
+        <div class="mt-3" data-aos="fade-up">
+            <div class="eyebrow mb-2" style="color:var(--gold-light);font-size:.78rem;letter-spacing:.15em;font-weight:700;text-transform:uppercase">Parish Media</div>
+            <h1 class="display-5 fw-bold">Videos</h1>
+        </div>
+    </div>
+</section>
+
+<section class="section-gap" style="background:var(--sky)">
+    <div class="container-fluid px-lg-5">
+        @* Category filter *@
+        @if (categories != null && categories.Any()) {
+        <div class="gallery-filter-bar mb-5" data-aos="fade-up">
+            <button class="filter-btn active" data-filter="all">All</button>
+            @foreach (var cat in categories) {
+                <button class="filter-btn" data-filter="@cat.CategoryId">@cat.CategoryName</button>
+            }
+        </div>
+        }
+
+        @* Video Grid *@
+        @if (videos.Any()) {
+        <div class="row g-4" id="videosGrid">
+            @foreach (var v in videos) {
+            <div class="col-md-6 col-lg-4" data-category="@v.CategoryId" data-aos="fade-up">
+                <div class="pbl-card overflow-hidden video-card">
+                    @* Thumbnail *@
+                    <div class="video-thumb" style="position:relative;padding-bottom:56.25%;overflow:hidden;background:#0f172a">
+                        @{
+                            var ytId  = v.YouTubeId;
+                            var thumb = !string.IsNullOrEmpty(v.ThumbnailUrl) ? v.ThumbnailUrl
+                                      : !string.IsNullOrEmpty(ytId) ? $"https://img.youtube.com/vi/{ytId}/mqdefault.jpg"
+                                      : null;
+                        }
+                        @if (!string.IsNullOrEmpty(thumb)) {
+                            <img src="@thumb" alt="@v.Title" loading="lazy"
+                                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease" />
+                        }
+                        <div style="position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center">
+                            <a class="glightbox video-play-icon"
+                               href="@(v.EmbedType=="YouTube" && !string.IsNullOrEmpty(ytId) ? $"https://www.youtube.com/watch?v={ytId}" : v.EmbedCode)"
+                               data-glightbox="type: video"
+                               data-title="@v.Title" aria-label="Play @v.Title">
+                                <i class='bx bx-play-circle'></i>
+                            </a>
+                        </div>
+                        <span style="position:absolute;top:10px;left:10px;background:rgba(220,38,38,.85);color:#fff;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:4px">
+                            @v.EmbedType
+                        </span>
+                    </div>
+                    @* Info *@
+                    <div class="p-3">
+                        <div style="font-size:.72rem;color:var(--gold);font-weight:600;margin-bottom:4px">@v.CategoryName</div>
+                        <h6 style="font-family:var(--font-sans);font-weight:700;color:var(--navy);margin-bottom:0;font-size:.95rem">@v.Title</h6>
+                        @if (!string.IsNullOrEmpty(v.Description)) {
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:6px;margin-bottom:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">@v.Description</p>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        } else {
+            <div class="text-center py-5 text-muted">
+                <i class='bx bx-video' style="font-size:3rem;opacity:.3;display:block;margin-bottom:12px"></i>No videos available yet.
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+<style>
+.video-play-icon { font-size:3.5rem;color:rgba(255,255,255,.9);transition:transform .25s,color .25s; }
+.video-play-icon:hover { transform:scale(1.12);color:#fff; }
+.video-card:hover img { transform:scale(1.05); }
+</style>
+}
