@@ -16,9 +16,9 @@
     <meta property="og:description" content="@(ViewBag.OGDescription ?? ViewBag.MetaDescription)" />
     <meta property="og:image"       content="@ViewBag.OGImageUrl" />
     <meta property="og:type"        content="website" />
-    <meta property="og:url"         content="@Request.Url?.AbsoluteUri" />
+    <meta property="og:url" content="@(Request.Url != null ? Request.Url.AbsoluteUri : "")" />
     <meta name="twitter:card"       content="summary_large_image" />
-    <link rel="canonical"           href="@(ViewBag.CanonicalUrl ?? Request.Url?.AbsoluteUri)" />
+    <link rel="canonical" href="@(ViewBag.CanonicalUrl ?? (Request.Url != null ? Request.Url.AbsoluteUri : ""))" />
 
     @if (ViewBag.SchemaJson != null) {
         <script type="application/ld+json">@Html.Raw(ViewBag.SchemaJson)</script>
@@ -113,7 +113,8 @@
     </nav>
 
     @* ══ FLASH MESSAGES ══════════════════════════════════════ *@
-    @if (TempData["Success"] != null) {
+    @if (TempData["Success"] != null)
+    {
         <div class="alert alert-success alert-dismissible fade show m-0 rounded-0" role="alert">
             <i class='bx bx-check-circle me-2'></i>@TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -132,16 +133,19 @@
                         <div class="footer-brand">
                             <div class="footer-cross">✝</div>
                             <h5 class="mt-2">Paralogamadha Basilica</h5>
-                            <p class="footer-tagline">Basilica of Our Lady of Assumption<br/>Kamanayakkanpatti</p>
+                            <p class="footer-tagline">Basilica of Our Lady of Assumption<br />Kamanayakkanpatti</p>
                         </div>
                         <div class="footer-social mt-3">
-                            @if (!string.IsNullOrEmpty(ViewBag.FacebookUrl?.ToString())) {
+                            @if (ViewBag.FacebookUrl != null && !string.IsNullOrEmpty(ViewBag.FacebookUrl.ToString()))
+                            {
                                 <a href="@ViewBag.FacebookUrl" target="_blank" rel="noopener" class="social-icon"><i class='bx bxl-facebook'></i></a>
                             }
-                            @if (!string.IsNullOrEmpty(ViewBag.YoutubeUrl?.ToString())) {
+                            @if (ViewBag.YoutubeUrl != null && !string.IsNullOrEmpty(ViewBag.YoutubeUrl.ToString()))
+                            {
                                 <a href="@ViewBag.YoutubeUrl" target="_blank" rel="noopener" class="social-icon"><i class='bx bxl-youtube'></i></a>
                             }
-                            @if (!string.IsNullOrEmpty(ViewBag.InstagramUrl?.ToString())) {
+                            @if (ViewBag.InstagramUrl != null && !string.IsNullOrEmpty(ViewBag.InstagramUrl.ToString()))
+                            {
                                 <a href="@ViewBag.InstagramUrl" target="_blank" rel="noopener" class="social-icon"><i class='bx bxl-instagram'></i></a>
                             }
                         </div>
@@ -150,7 +154,8 @@
                     <div class="col-lg-2 col-sm-6">
                         <h6 class="footer-heading">Quick Links</h6>
                         <ul class="footer-links">
-                            @foreach (var link in (IEnumerable<Paralogamadha.Core.Models.QuickLink>)ViewBag.QuickLinks) {
+                            @foreach (var link in (IEnumerable<Paralogamadha.Core.Models.QuickLink>)ViewBag.QuickLinks)
+                            {
                                 <li><a href="@link.Url"><i class="@link.IconClass me-1"></i>@link.Title</a></li>
                             }
                         </ul>
@@ -173,7 +178,7 @@
                         <p class="footer-date">@today.ToString("dddd, MMMM dd")</p>
                         <a href="/@ViewBag.CurrentLang/daily/feast" class="footer-daily-link">
                             <i class='bx bx-sun me-1'></i>Feast of the Day
-                        </a><br/>
+                        </a><br />
                         <a href="/@ViewBag.CurrentLang/daily/reading" class="footer-daily-link">
                             <i class='bx bx-book-open me-1'></i>Today's Readings
                         </a>
@@ -206,8 +211,8 @@
     <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/js/glightbox.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.8.0/countUp.umd.js"></script>
-
-    @Scripts.Render("~/bundles/js/site")
+    <script src="~/Content/js/app.js"></script>
+    @*@Scripts.Render("~/bundles/js/site")*@
     @RenderSection("Scripts", required: false)
 
     <script>

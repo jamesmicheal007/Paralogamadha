@@ -220,6 +220,7 @@
     <Compile Include="Areas\Admin\Controllers\AdminAccountController.cs" />
     <Compile Include="Areas\Admin\Controllers\GalleryAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\DailyContentAdminController.cs" />
+    <Compile Include="Areas\Admin\Controllers\SongsAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\UserAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\DashboardController.cs" />
     <Compile Include="Areas\Admin\Controllers\HeroSlideAdminController.cs" />
@@ -233,8 +234,8 @@
     <Compile Include="Areas\Admin\Controllers\AdminControllers.cs" />
     <Compile Include="Areas\Admin\Controllers\Phase3AdminControllers.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\SongsController.cs" />
-    <Compile Include="Controllers\SongsAdminController.cs" />
     <Compile Include="Controllers\DonationController.cs" />
     <Compile Include="Controllers\VideosController.cs" />
     <Compile Include="Controllers\VirtualTourController.cs" />
@@ -252,6 +253,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\HomeViewModel.cs" />
+    <Compile Include="Models\MassTimingViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -304,6 +307,7 @@
     <Content Include="Areas\Admin\Views\VirtualTour\Index.cshtml" />
     <Content Include="Areas\Admin\Views\VirtualTour\Scene.cshtml" />
     <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\Admin\Views\Web.config" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
@@ -315,12 +319,12 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
-    <Content Include="Web.config" />
-    <Content Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
+    <Content Include="Web_old.config" />
+    <Content Include="Web_old.Debug.config">
+      <DependentUpon>Web_old.config</DependentUpon>
     </Content>
-    <Content Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
+    <Content Include="Web_old.Release.config">
+      <DependentUpon>Web_old.config</DependentUpon>
     </Content>
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
@@ -344,10 +348,19 @@
     <Content Include="Views\Testimonials\Index.cshtml" />
     <Content Include="Views\Videos\Index.cshtml" />
     <Content Include="Views\VirtualTour\Index.cshtml" />
+    <Content Include="Views\Error\NotFound.cshtml" />
+    <Content Include="Views\Error\Server.cshtml" />
+    <Content Include="Web.config" />
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
+    <Folder Include="Content\images\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
@@ -375,6 +388,9 @@
       <Project>{40cad0b3-e311-4c9f-8082-e1d37250ee53}</Project>
       <Name>Paralogamadha.Services</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

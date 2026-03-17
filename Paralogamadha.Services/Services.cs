@@ -84,13 +84,22 @@ namespace Paralogamadha.Services
         {
             try
             {
-                var saltBytes = Convert.FromBase64String(saltBase64);
+                if (string.IsNullOrWhiteSpace(saltBase64)) return false;
+
+                // Clean the string: remove common whitespace/newlines that break Base64 decoding
+                string cleanSalt = saltBase64.Trim().Replace(" ", "").Replace("\n", "").Replace("\r", "");
+
+                // Ensure the string length is a multiple of 4 (valid Base64 padding)
+                if (cleanSalt.Length % 4 != 0) return false;
+
+                var saltBytes = Convert.FromBase64String(cleanSalt);
                 using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, Iterations, HashAlgorithmName.SHA256);
                 var computedHash = Convert.ToBase64String(pbkdf2.GetBytes(HashSize));
                 return SlowEquals(hash, computedHash);
             }
             catch { return false; }
         }
+        
 
         // Constant-time comparison to prevent timing attacks
         private static bool SlowEquals(string a, string b)

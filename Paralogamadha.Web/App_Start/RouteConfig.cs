@@ -13,6 +13,12 @@ namespace Paralogamadha.Web.App_Start
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            //// Add this explicit route
+            //routes.MapRoute(
+            //    name: "Error",
+            //    url: "Error/{action}",
+            //    defaults: new { controller = "Error", action = "Index" }
+            //);
             // Localized routes — lang prefix: /ta/home, /hi/donation, etc.
             routes.MapRoute(
                 name: "Localized",

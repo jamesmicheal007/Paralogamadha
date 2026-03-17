@@ -2,10 +2,11 @@
 //  AdminAccountController.cs — Login/Logout
 // ============================================================
 
+using Paralogamadha.Core.Interfaces;
+using Paralogamadha.Services;
 using System;
 using System.Web.Mvc;
 using System.Web.Security;
-using Paralogamadha.Core.Interfaces;
 
 namespace Paralogamadha.Web.Areas.Admin.Controllers
 {
@@ -26,12 +27,17 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
             if (User.Identity.IsAuthenticated)
                 return RedirectToAction("Index", "Dashboard");
             ViewBag.ReturnUrl = returnUrl;
-            return View();
+            return View();  
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Login(string username, string password, string returnUrl)
         {
+            // Example using your AuthService logic
+            var authService = new AuthService(null); // UOW not needed for hashing
+            string newSalt;
+            string newHash = authService.HashPassword("admin", out newSalt);
+
             var ip = Request.UserHostAddress;
             var (success, error, user) = _auth.Login(username, password, ip);
 

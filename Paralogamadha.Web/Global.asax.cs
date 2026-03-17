@@ -36,20 +36,29 @@ namespace Paralogamadha.Web
 
         protected void Application_AcquireRequestState(object sender, EventArgs e)
         {
-            // Resolve culture from route or cookie
-            var routeData = RouteTable.Routes.GetRouteData(new HttpContextWrapper(Context));
-            string lang = routeData?.Values["lang"]?.ToString() ?? "en";
+            try
+            {
+                var routeData = RouteTable.Routes.GetRouteData(new HttpContextWrapper(Context));
+                // Resolve culture from route or cookie
+                string lang = routeData?.Values["lang"]?.ToString() ?? "en";
 
-            var supportedCultures = new[] { "en", "ta", "hi" };
-            if (!Array.Exists(supportedCultures, l => l == lang))
-                lang = "en";
+                var supportedCultures = new[] { "en", "ta", "hi" };
+                if (!Array.Exists(supportedCultures, l => l == lang))
+                    lang = "en";
 
-            var culture = new CultureInfo(lang == "ta" ? "ta-IN" : lang == "hi" ? "hi-IN" : "en-US");
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
+                var culture = new CultureInfo(lang == "ta" ? "ta-IN" : lang == "hi" ? "hi-IN" : "en-US");
+                Thread.CurrentThread.CurrentCulture = culture;
+                Thread.CurrentThread.CurrentUICulture = culture;
 
-            // Store for use in controllers / views
-            HttpContext.Current.Items["CurrentLang"] = lang;
+                // Store for use in controllers / views
+                HttpContext.Current.Items["CurrentLang"] = lang;
+            }
+            catch
+            {
+                // Fallback to default if routing/state fails during an error
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+                Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+            }
         }
 
         protected void Application_Error()

@@ -1,34 +1,40 @@
 @* ============================================================
-   Views/Home/Index.cshtml  — Home Page
-   ============================================================ *@
+    Views/Home/Index.cshtml  — Home Page
+    ============================================================ *@
+@model Paralogamadha.Web.Models.HomeViewModel
+@using Paralogamadha.Core.Models
 @{
     ViewBag.Title = "Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var model    = Model as dynamic;
-    var today    = DateTime.Today;
+    var model = Model as dynamic;
+    var today = DateTime.Today;
     var todayDay = (int)today.DayOfWeek;
 }
 
 @* ── Announcement Ticker ─────────────────────────────────── *@
-@if (model.Announcements != null) {
+@if (Model.Announcements != null)
+{
     var anns = model.Announcements as IEnumerable<Paralogamadha.Core.Models.Announcement>;
-    if (anns.Any()) {
-    <div class="announcement-bar">
-        <div class="d-flex align-items-center gap-3 px-lg-5 px-3">
-            <span class="announcement-label"><i class='bx bx-bell me-1'></i>Notice</span>
-            <div class="ticker-wrap">
-                <div class="ticker-items">
-                    @foreach (var ann in anns) {
-                        <span class="ticker-item"><i class='bx bx-chevron-right'></i>@ann.Title</span>
-                    }
-                    @* Duplicate for seamless loop *@
-                    @foreach (var ann in anns) {
-                        <span class="ticker-item"><i class='bx bx-chevron-right'></i>@ann.Title</span>
-                    }
+    if (anns.Any())
+    {
+        <div class="announcement-bar">
+            <div class="d-flex align-items-center gap-3 px-lg-5 px-3">
+                <span class="announcement-label"><i class='bx bx-bell me-1'></i>Notice</span>
+                <div class="ticker-wrap">
+                    <div class="ticker-items">
+                        @foreach (var ann in anns)
+                        {
+                            <span class="ticker-item"><i class='bx bx-chevron-right'></i>@ann.Title</span>
+                        }
+                        @* Duplicate for seamless loop *@
+                        @foreach (var ann in anns)
+                        {
+                            <span class="ticker-item"><i class='bx bx-chevron-right'></i>@ann.Title</span>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     }
 }
 
@@ -38,7 +44,8 @@
         <div class="swiper-wrapper">
             @{
                 var slides = model.HeroSlides as IEnumerable<Paralogamadha.Core.Models.HeroSlide>;
-                if (slides == null || !slides.Any()) {
+                if (slides == null || !slides.Any())
+                {
                     <div class="swiper-slide">
                         <div class="hero-slide" style="background-image:url('/Content/images/hero-default.jpg')">
                             <div class="hero-content">
@@ -48,33 +55,38 @@
                                     <p class="hero-subtitle anim-fade-up anim-delay-2">Kamanayakkanpatti — A Sacred Place of Grace</p>
                                     <div class="hero-actions anim-fade-up anim-delay-3">
                                         <a href="/@ViewBag.CurrentLang/masstiming" class="btn-pbl-gold ripple">View Mass Timings</a>
-                                        <a href="/@ViewBag.CurrentLang/prayer"     class="btn-pbl-outline text-white border-white">Prayer Request</a>
+                                        <a href="/@ViewBag.CurrentLang/prayer" class="btn-pbl-outline text-white border-white">Prayer Request</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                } else {
-                    foreach (var slide in slides) {
-                    <div class="swiper-slide">
-                        <div class="hero-slide" style="background-image:url('@slide.BackgroundImageUrl')">
-                            <div class="hero-content">
-                                <div class="hero-text">
-                                    <div class="hero-eyebrow">Basilica of Our Lady of Assumption</div>
-                                    <h1 class="hero-title">@slide.Title</h1>
-                                    @if (!string.IsNullOrEmpty(slide.SubTitle)) {
-                                        <p class="hero-subtitle">@slide.SubTitle</p>
-                                    }
-                                    @if (!string.IsNullOrEmpty(slide.ButtonText)) {
-                                        <div class="hero-actions">
-                                            <a href="@slide.ButtonUrl" class="btn-pbl-gold ripple">@slide.ButtonText</a>
-                                            <a href="/@ViewBag.CurrentLang/prayer" class="btn-pbl-outline text-white border-white">Prayer Request</a>
-                                        </div>
-                                    }
+                }
+                else
+                {
+                    foreach (var slide in slides)
+                    {
+                        <div class="swiper-slide">
+                            <div class="hero-slide" style="background-image:url('@slide.BackgroundImageUrl')">
+                                <div class="hero-content">
+                                    <div class="hero-text">
+                                        <div class="hero-eyebrow">Basilica of Our Lady of Assumption</div>
+                                        <h1 class="hero-title">@slide.Title</h1>
+                                        @if (!string.IsNullOrEmpty(slide.SubTitle))
+                                        {
+                                            <p class="hero-subtitle">@slide.SubTitle</p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(slide.ButtonText))
+                                        {
+                                            <div class="hero-actions">
+                                                <a href="@slide.ButtonUrl" class="btn-pbl-gold ripple">@slide.ButtonText</a>
+                                                <a href="/@ViewBag.CurrentLang/prayer" class="btn-pbl-outline text-white border-white">Prayer Request</a>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     }
                 }
             }
@@ -120,9 +132,12 @@
                             @{
                                 var thought = model.TodayThought as Paralogamadha.Core.Models.ThoughtOfDay;
                             }
-                            @if (thought != null) {
+                            @if (thought != null)
+                            {
                                 <span>"@(thought.Quote.Length > 60 ? thought.Quote.Substring(0, 60) + "…" : thought.Quote)"</span>
-                            } else {
+                            }
+                            else
+                            {
                                 <span>Daily Inspiration</span>
                             }
                         </div>
@@ -157,12 +172,14 @@
         <div class="quick-links-grid" data-aos="fade-up">
             @{
                 var links = ViewBag.QuickLinks as IEnumerable<Paralogamadha.Core.Models.QuickLink>;
-                if (links != null) {
-                    foreach (var link in links) {
-                    <a href="@link.Url" class="quick-link-item">
-                        <i class="@link.IconClass"></i>
-                        @link.Title
-                    </a>
+                if (links != null)
+                {
+                    foreach (var link in links)
+                    {
+                        <a href="@link.Url" class="quick-link-item">
+                            <i class="@link.IconClass"></i>
+                            @link.Title
+                        </a>
                     }
                 }
             }
@@ -184,16 +201,19 @@
             var todayMasses = model.TodayMasses as IEnumerable<Paralogamadha.Core.Models.MassSchedule>;
         }
 
-        @if (todayMasses != null && todayMasses.Any()) {
+        @if (todayMasses != null && todayMasses.Any())
+        {
             <div class="row g-3 justify-content-center">
-                @foreach (var mass in todayMasses) {
+                @foreach (var mass in todayMasses)
+                {
                     <div class="col-md-4 col-sm-6" data-aos="fade-up">
                         <div class="mass-timing-card">
                             <div class="mass-time-badge">@mass.MassTimeDisplay</div>
                             <div class="mass-details">
                                 <h6>@(string.IsNullOrEmpty(mass.Venue) ? "Main Basilica" : mass.Venue)</h6>
                                 <span class="mass-lang-badge">@mass.MassLanguage</span>
-                                @if (!string.IsNullOrEmpty(mass.Celebrant)) {
+                                @if (!string.IsNullOrEmpty(mass.Celebrant))
+                                {
                                     <div class="mt-1" style="font-size:.8rem;color:var(--muted)">
                                         <i class='bx bx-user me-1'></i>@mass.Celebrant
                                     </div>
@@ -203,7 +223,9 @@
                     </div>
                 }
             </div>
-        } else {
+        }
+        else
+        {
             <div class="text-center py-4 text-muted">No masses scheduled for today.</div>
         }
 
@@ -243,51 +265,58 @@
 @{
     var testimonials = model.Testimonials as IEnumerable<Paralogamadha.Core.Models.Testimonial>;
 }
-@if (testimonials != null && testimonials.Any()) {
-<section class="section-gap">
-    <div class="container-fluid px-lg-5">
-        <div class="section-heading" data-aos="fade-up">
-            <div class="eyebrow">Community</div>
-            <h2>What Our Parish Says</h2>
-            <div class="divider"></div>
-        </div>
-        <div class="swiper testimonial-swiper" data-aos="fade-up">
-            <div class="swiper-wrapper">
-                @foreach (var t in testimonials) {
-                <div class="swiper-slide">
-                    <div class="testimonial-card">
-                        <div class="star-rating">
-                            @for (int i = 1; i <= 5; i++) {
-                                <i class="bx @(i <= t.Rating ? "bxs-star" : "bx-star")"></i>
-                            }
-                        </div>
-                        <p class="testimonial-text">@t.TestimonialText</p>
-                        <div class="testimonial-author">
-                            <div class="testimonial-avatar">
-                                @if (!string.IsNullOrEmpty(t.PhotoUrl)) {
-                                    <img src="@t.PhotoUrl" alt="@t.AuthorName" />
-                                } else {
-                                    @t.AuthorName.Substring(0, 1).ToUpper()
-                                }
-                            </div>
-                            <div>
-                                <div class="testimonial-name">@t.AuthorName</div>
-                                @if (!string.IsNullOrEmpty(t.AuthorLocation)) {
-                                    <div class="testimonial-location"><i class='bx bx-map-pin me-1'></i>@t.AuthorLocation</div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                }
+@if (testimonials != null && testimonials.Any())
+{
+    <section class="section-gap">
+        <div class="container-fluid px-lg-5">
+            <div class="section-heading" data-aos="fade-up">
+                <div class="eyebrow">Community</div>
+                <h2>What Our Parish Says</h2>
+                <div class="divider"></div>
             </div>
-            <div class="swiper-pagination mt-4 position-relative"></div>
+            <div class="swiper testimonial-swiper" data-aos="fade-up">
+                <div class="swiper-wrapper">
+                    @foreach (var t in testimonials)
+                    {
+                        <div class="swiper-slide">
+                            <div class="testimonial-card">
+                                <div class="star-rating">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="bx @(i <= t.Rating ? "bxs-star" : "bx-star")"></i>
+                                    }
+                                </div>
+                                <p class="testimonial-text">@t.TestimonialText</p>
+                                <div class="testimonial-author">
+                                    <div class="testimonial-avatar">
+                                        @if (!string.IsNullOrEmpty(t.PhotoUrl))
+                                        {
+                                            <img src="@t.PhotoUrl" alt="@t.AuthorName" />
+                                        }
+                                        else
+                                        {
+                                            @t.AuthorName.Substring(0, 1).ToUpper()
+                                        }
+                                    </div>
+                                    <div>
+                                        <div class="testimonial-name">@t.AuthorName</div>
+                                        @if (!string.IsNullOrEmpty(t.AuthorLocation))
+                                        {
+                                            <div class="testimonial-location"><i class='bx bx-map-pin me-1'></i>@t.AuthorLocation</div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="swiper-pagination mt-4 position-relative"></div>
+            </div>
+            <div class="text-center mt-4" data-aos="fade-up">
+                <a href="/@ViewBag.CurrentLang/testimonials" class="btn-pbl-outline">Share Your Story</a>
+            </div>
         </div>
-        <div class="text-center mt-4" data-aos="fade-up">
-            <a href="/@ViewBag.CurrentLang/testimonials" class="btn-pbl-outline">Share Your Story</a>
-        </div>
-    </div>
-</section>
+    </section>
 }
 
 @* ── Donate CTA ───────────────────────────────────────────── *@

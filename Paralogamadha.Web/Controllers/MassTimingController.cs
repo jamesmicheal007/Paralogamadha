@@ -1,4 +1,5 @@
 ﻿using Paralogamadha.Core.Interfaces;
+using Paralogamadha.Web.Models;
 using System.Web.Mvc;
 
 namespace Paralogamadha.Web.Controllers
@@ -13,13 +14,13 @@ namespace Paralogamadha.Web.Controllers
             SetPageMeta("massTiming");
             var langId = CurrentLanguageId;
 
-            var model = new
+            var viewModel = new MassTimingViewModel
             {
-                WeeklySchedules = _uow.MassSchedules.GetAll(),
-                SpecialMasses = _uow.MassSchedules.GetUpcoming(langId, 60),
+                WeeklySchedules = _uow.MassSchedules.GetAll(), // Ensure this matches your Repo method
+                SpecialMasses = _uow.MassSchedules.GetUpcoming(langId)
             };
 
-            return View(model);
+            return View(viewModel);
         }
     }
 }

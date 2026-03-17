@@ -1,17 +1,19 @@
 @* ============================================================
-   Views/MassTiming/Index.cshtml
-   ============================================================ *@
+    Views/MassTiming/Index.cshtml
+    ============================================================ *@
+@model Paralogamadha.Web.Models.MassTimingViewModel
+@using Paralogamadha.Core.Models
 @{
     ViewBag.Title = "Mass Timings";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var model   = Model as dynamic;
-    var allScheds = model.WeeklySchedules as IEnumerable<Paralogamadha.Core.Models.MassSchedule>;
-    var specials  = model.SpecialMasses   as IEnumerable<Paralogamadha.Core.Models.SpecialMass>;
-    var today     = (int)DateTime.Today.DayOfWeek;
-    string[] dayNames  = { "Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday" };
-    string[] dayAbbr   = { "Sun","Mon","Tue","Wed","Thu","Fri","Sat" };
-}
 
+    // Access properties directly from the strongly-typed Model
+    var allScheds = Model.WeeklySchedules;
+    var specials = Model.SpecialMasses;
+    var today = (int)DateTime.Today.DayOfWeek;
+    string[] dayNames = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+    string[] dayAbbr = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+}
 @* ── Hero ────────────────────────────────────────────────── *@
 <section class="mass-timing-hero text-white">
     <div class="container-fluid px-lg-5">
@@ -44,7 +46,8 @@
 
         @* Day Selector *@
         <div class="day-selector mb-4" data-aos="fade-up">
-            @for (int d = 0; d < 7; d++) {
+            @for (int d = 0; d < 7; d++)
+            {
                 int dayIdx = d;
                 bool isToday = dayIdx == today;
                 <button class="day-btn @(isToday ? "today" : "")" data-day="@dayIdx" type="button">
@@ -55,76 +58,87 @@
         </div>
 
         @* Mass panels per day *@
-        @for (int d = 0; d < 7; d++) {
+        @for (int d = 0; d < 7; d++)
+        {
             int dayIdx = d;
             var dayMasses = allScheds?.Where(s => s.DayOfWeek == dayIdx).OrderBy(s => s.MassTime) ?? Enumerable.Empty<Paralogamadha.Core.Models.MassSchedule>();
-        <div id="mass-day-@dayIdx" class="mass-panel d-none">
-            <h4 class="mb-3 text-navy">@dayNames[dayIdx] Masses</h4>
-            @if (dayMasses.Any()) {
-                <div class="row g-3">
-                    @foreach (var mass in dayMasses) {
-                    <div class="col-md-6 col-lg-4">
-                        <div class="mass-timing-card">
-                            <div class="mass-time-badge">@mass.MassTimeDisplay</div>
-                            <div class="mass-details">
-                                <h6>@(string.IsNullOrEmpty(mass.Venue) ? "Main Basilica" : mass.Venue)</h6>
-                                <span class="mass-lang-badge">@mass.MassLanguage</span>
-                                @if (!string.IsNullOrEmpty(mass.Celebrant)) {
-                                    <div class="mt-1" style="font-size:.82rem;color:var(--muted)">
-                                        <i class='bx bx-user me-1'></i>@mass.Celebrant
+            <div id="mass-day-@dayIdx" class="mass-panel d-none">
+                <h4 class="mb-3 text-navy">@dayNames[dayIdx] Masses</h4>
+                @if (dayMasses.Any())
+                {
+                    <div class="row g-3">
+                        @foreach (var mass in dayMasses)
+                        {
+                            <div class="col-md-6 col-lg-4">
+                                <div class="mass-timing-card">
+                                    <div class="mass-time-badge">@mass.MassTimeDisplay</div>
+                                    <div class="mass-details">
+                                        <h6>@(string.IsNullOrEmpty(mass.Venue) ? "Main Basilica" : mass.Venue)</h6>
+                                        <span class="mass-lang-badge">@mass.MassLanguage</span>
+                                        @if (!string.IsNullOrEmpty(mass.Celebrant))
+                                        {
+                                            <div class="mt-1" style="font-size:.82rem;color:var(--muted)">
+                                                <i class='bx bx-user me-1'></i>@mass.Celebrant
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(mass.Notes))
+                                        {
+                                            <div class="mt-1" style="font-size:.8rem;color:var(--muted);font-style:italic">@mass.Notes</div>
+                                        }
                                     </div>
-                                }
-                                @if (!string.IsNullOrEmpty(mass.Notes)) {
-                                    <div class="mt-1" style="font-size:.8rem;color:var(--muted);font-style:italic">@mass.Notes</div>
-                                }
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
-                    }
-                </div>
-            } else {
-                <div class="text-muted py-3">
-                    <i class='bx bx-info-circle me-2'></i>No regular masses scheduled on @dayNames[dayIdx].
-                </div>
-            }
-        </div>
+                }
+                else
+                {
+                    <div class="text-muted py-3">
+                        <i class='bx bx-info-circle me-2'></i>No regular masses scheduled on @dayNames[dayIdx].
+                    </div>
+                }
+            </div>
         }
 
         @* Special Masses *@
-        @if (specials != null && specials.Any()) {
-        <div class="mt-5" data-aos="fade-up">
-            <div class="section-heading text-start" style="text-align:left!important;margin-bottom:28px">
-                <div class="eyebrow">Upcoming</div>
-                <h3>Special Masses</h3>
-            </div>
-            <div class="row g-3">
-                @foreach (var sm in specials) {
-                <div class="col-md-6 col-lg-4" data-aos="fade-up">
-                    <div class="pbl-card p-4">
-                        <div class="d-flex gap-3 align-items-start">
-                            <div style="background:var(--gold-pale);border-radius:12px;padding:12px;text-align:center;min-width:60px;flex-shrink:0">
-                                <div style="font-size:.7rem;color:var(--gold);font-weight:700;text-transform:uppercase">@sm.MassDate.ToString("MMM")</div>
-                                <div style="font-size:1.8rem;font-weight:800;color:var(--navy);line-height:1">@sm.MassDate.Day</div>
-                            </div>
-                            <div>
-                                <h6 class="mb-1">@sm.Title</h6>
-                                <div style="font-size:.85rem;color:var(--muted)">
-                                    <i class='bx bx-time me-1'></i>
-                                    @DateTime.Today.Add(sm.MassTime).ToString("hh:mm tt")
-                                    @if (!string.IsNullOrEmpty(sm.Venue)) {
-                                        <span class="ms-2"><i class='bx bx-map me-1'></i>@sm.Venue</span>
-                                    }
+        @if (specials != null && specials.Any())
+        {
+            <div class="mt-5" data-aos="fade-up">
+                <div class="section-heading text-start" style="text-align:left!important;margin-bottom:28px">
+                    <div class="eyebrow">Upcoming</div>
+                    <h3>Special Masses</h3>
+                </div>
+                <div class="row g-3">
+                    @foreach (var sm in specials)
+                    {
+                        <div class="col-md-6 col-lg-4" data-aos="fade-up">
+                            <div class="pbl-card p-4">
+                                <div class="d-flex gap-3 align-items-start">
+                                    <div style="background:var(--gold-pale);border-radius:12px;padding:12px;text-align:center;min-width:60px;flex-shrink:0">
+                                        <div style="font-size:.7rem;color:var(--gold);font-weight:700;text-transform:uppercase">@sm.MassDate.ToString("MMM")</div>
+                                        <div style="font-size:1.8rem;font-weight:800;color:var(--navy);line-height:1">@sm.MassDate.Day</div>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">@sm.Title</h6>
+                                        <div style="font-size:.85rem;color:var(--muted)">
+                                            <i class='bx bx-time me-1'></i>
+                                            @DateTime.Today.Add(sm.MassTime).ToString("hh:mm tt")
+                                            @if (!string.IsNullOrEmpty(sm.Venue))
+                                            {
+                                                <span class="ms-2"><i class='bx bx-map me-1'></i>@sm.Venue</span>
+                                            }
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(sm.Description))
+                                        {
+                                            <p class="mb-0 mt-2" style="font-size:.82rem;color:var(--muted)">@sm.Description</p>
+                                        }
+                                    </div>
                                 </div>
-                                @if (!string.IsNullOrEmpty(sm.Description)) {
-                                    <p class="mb-0 mt-2" style="font-size:.82rem;color:var(--muted)">@sm.Description</p>
-                                }
                             </div>
                         </div>
-                    </div>
+                    }
                 </div>
-                }
             </div>
-        </div>
         }
     </div>
 </section>

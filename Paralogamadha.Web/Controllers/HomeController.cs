@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web.Mvc;
 using Paralogamadha.Core.Interfaces;
-
+using Paralogamadha.Web.Models;
 namespace Paralogamadha.Web.Controllers
 {
     public class HomeController : BaseController
@@ -15,7 +15,7 @@ namespace Paralogamadha.Web.Controllers
             var today = DateTime.Today;
             var langId = CurrentLanguageId;
 
-            var model = new
+            var model = new HomeViewModel
             {
                 HeroSlides = _uow.HeroSlides.GetActive(langId),
                 Announcements = _uow.Announcements.GetActive(langId, 5),
