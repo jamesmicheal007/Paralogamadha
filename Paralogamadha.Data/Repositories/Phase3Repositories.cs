@@ -11,16 +11,6 @@ using Paralogamadha.Data.Infrastructure;
 
 namespace Paralogamadha.Data.Repositories
 {
-    public interface ISongsRepository
-    {
-        IEnumerable<SongCategory> GetCategories(int? languageId);
-        IEnumerable<Song>         GetAll(int? languageId);
-        IEnumerable<Song>         GetByCategory(int categoryId, int languageId);
-        Song                      GetById(int id);
-        int                       Upsert(Song song);
-        bool                      Delete(int id);
-    }
-
     public class SongsRepository : BaseRepository, ISongsRepository
     {
         public IEnumerable<SongCategory> GetCategories(int? languageId)
@@ -404,32 +394,6 @@ namespace Paralogamadha.Data.Repositories
 // ============================================================
 namespace Paralogamadha.Core.Models
 {
-    public class SongCategory
-    {
-        public int    CategoryId   { get; set; }
-        public string CategoryName { get; set; }
-        public int    LanguageId   { get; set; }
-        public string ColorHex     { get; set; }
-        public int    SortOrder    { get; set; }
-        public bool   IsActive     { get; set; }
-    }
-
-    public class Song
-    {
-        public int     SongId       { get; set; }
-        public int     CategoryId   { get; set; }
-        public string  CategoryName { get; set; }
-        public int     LanguageId   { get; set; }
-        public string  Title        { get; set; }
-        public string  Lyrics       { get; set; }
-        public string  AudioFileUrl { get; set; }
-        public int?    Duration     { get; set; }
-        public int     SortOrder    { get; set; }
-        public bool    IsPublished  { get; set; }
-        public DateTime CreatedAt   { get; set; }
-        public int?    CreatedBy    { get; set; }
-    }
-
     public class VideoCategory
     {
         public int    CategoryId   { get; set; }

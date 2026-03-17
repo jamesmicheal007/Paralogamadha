@@ -267,6 +267,7 @@ namespace Paralogamadha.Core.Models
         public string Quote { get; set; }
         public string Attribution { get; set; }
         public string BackgroundImageUrl { get; set; }
+        public int CreatedBy { get; set; }
     }
 
     // ── Media: Gallery ────────────────────────────────────────
@@ -423,5 +424,31 @@ namespace Paralogamadha.Core.Models
         public decimal DonationsToday { get; set; }
         public int DonationCountToday { get; set; }
         public int ActiveAdminUsers { get; set; }
+    }
+    // ── Songs ──────────────────────────────────────────────────
+    public class SongCategory
+    {
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; }
+        public int LanguageId { get; set; }
+        public string ColorHex { get; set; }
+        public int SortOrder { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public class Song
+    {
+        public int SongId { get; set; }
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; }
+        public int LanguageId { get; set; }
+        public string Title { get; set; }
+        public string Lyrics { get; set; }
+        public string AudioFileUrl { get; set; }
+        public int? Duration { get; set; }
+        public int SortOrder { get; set; }
+        public bool IsPublished { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int? CreatedBy { get; set; }
     }
 }

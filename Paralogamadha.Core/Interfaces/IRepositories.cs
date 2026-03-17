@@ -193,7 +193,16 @@ namespace Paralogamadha.Core.Interfaces
     {
         DashboardStats GetStats();
     }
-
+    // ── Songs ─────────────────────────────────────────────────
+    public interface ISongsRepository
+    {
+        IEnumerable<SongCategory> GetCategories(int? languageId);
+        IEnumerable<Song> GetAll(int? languageId);
+        IEnumerable<Song> GetByCategory(int categoryId, int languageId);
+        Song GetById(int id);
+        int Upsert(Song song);
+        bool Delete(int id);
+    }
     // ── Unit of Work ──────────────────────────────────────────
     public interface IUnitOfWork : IDisposable
     {
@@ -216,6 +225,7 @@ namespace Paralogamadha.Core.Interfaces
         IRoomBookingRepository   RoomBookings   { get; }
         IDonationRepository      Donations      { get; }
         IDashboardRepository     Dashboard      { get; }
+        ISongsRepository Songs { get; }
     }
 }
 

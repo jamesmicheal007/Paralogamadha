@@ -8,7 +8,7 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
     using Paralogamadha.Core.Interfaces;
     using Paralogamadha.Core.Models;
     using System.Web.Mvc;
-
+    using System.Text.RegularExpressions;
     public class AnnouncementAdminController : AdminBaseController
     {
         public AnnouncementAdminController(IUnitOfWork uow, IFileUploadService upload)
@@ -24,8 +24,9 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
             if (!ModelState.IsValid) return View("Edit", model);
 
             // Sanitize rich text body
-            var sanitizer = new Ganss.Xss.HtmlSanitizer();
-            model.Body = sanitizer.Sanitize(model.Body ?? "");
+            //var sanitizer = new Ganss.Xss.HtmlSanitizer();
+            //model.Body = sanitizer.Sanitize(model.Body ?? "");
+            model.Body = SanitizeHtml(model.Body ?? "");
             model.CreatedBy = CurrentUserId.ToString();
 
             var id = _uow.Announcements.Upsert(model);
@@ -33,7 +34,11 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
             TempData["Success"] = "Announcement saved.";
             return RedirectToAction("Index");
         }
-
+        private string SanitizeHtml(string html)
+        {
+            if (string.IsNullOrWhiteSpace(html)) return html;
+            return Regex.Replace(html, @"<script[^>]*>[\s\S]*?</script>", "", RegexOptions.IgnoreCase);
+        }
         [HttpPost]
         public JsonResult Delete(int id)
         {
