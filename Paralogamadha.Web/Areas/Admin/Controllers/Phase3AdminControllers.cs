@@ -4,12 +4,11 @@
 // ============================================================
 
 using System;
-using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using Paralogamadha.Core.Interfaces;
 using Paralogamadha.Core.Models;
 using Paralogamadha.Data.Repositories;
-
+using System.Text.RegularExpressions;
 namespace Paralogamadha.Web.Areas.Admin.Controllers
 {
     // ── Videos Admin ─────────────────────────────────────────
@@ -191,14 +190,20 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
         [HttpPost, ValidateAntiForgeryToken, ValidateInput(false)]
         public ActionResult SaveContent(HistoryContent model)
         {
-            model.BodyHtml  = SanitizeHtml(model.BodyHtml ?? "");
+            //var sanitizer = new Ganss.Xss.HtmlSanitizer();
+            //model.BodyHtml  = sanitizer.Sanitize(model.BodyHtml ?? "");
+            model.BodyHtml = SanitizeHtml(model.BodyHtml ?? "");
             model.CreatedBy = CurrentUserId;
             var id = _historyRepo.UpsertContent(model);
             LogAudit(model.ContentId == 0 ? "CREATE" : "UPDATE", "history", id);
             TempData["Success"] = "History content saved.";
             return RedirectToAction("Index");
         }
-
+        private string SanitizeHtml(string html)
+        {
+            if (string.IsNullOrWhiteSpace(html)) return html;
+            return Regex.Replace(html, @"<script[^>]*>[\s\S]*?</script>", "", RegexOptions.IgnoreCase);
+        }
         public ActionResult EditTimeline(int id = 0)
         {
             ViewBag.Languages = _uow.Languages.GetActive();
@@ -224,12 +229,6 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
 
         [HttpPost]
         public JsonResult DeleteTimeline(int id) { _historyRepo.DeleteTimeline(id); return JsonOk(message: "Deleted."); }
-
-        private string SanitizeHtml(string html)
-        {
-            if (string.IsNullOrWhiteSpace(html)) return html;
-            return Regex.Replace(html, @"<script[^>]*>[\s\S]*?</script>", "", RegexOptions.IgnoreCase);
-        }
     }
 
     // ── Site Settings Admin ───────────────────────────────────
