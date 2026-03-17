@@ -2,14 +2,16 @@
 //  Paralogamadha.Web / Global.asax.cs
 // ============================================================
 
+using Paralogamadha.Web.App_Start;
 using System;
 using System.Globalization;
+using System.Security.Principal;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using Paralogamadha.Web.App_Start;
+using System.Web.Security;
 
 namespace Paralogamadha.Web
 {
@@ -60,7 +62,38 @@ namespace Paralogamadha.Web
                 Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
             }
         }
+        protected void Application_PostAuthenticateRequest(object sender, EventArgs e)
+        {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            if (authCookie != null)
+            {
+                try
+                {
+                    var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
+                    if (authTicket != null && !authTicket.Expired)
+                    {
+                        // userData looks like "123|SuperAdmin"
+                        var data = authTicket.UserData.Split('|');
+                        if (data.Length >= 2)
+                        {
+                            string userId = data[0];
+                            string[] roles = { data[1] }; // The role we stored
 
+                            // Create the Identity and Principal
+                            var identity = new GenericIdentity(authTicket.Name);
+                            var principal = new GenericPrincipal(identity, roles);
+
+                            // This is what the [Authorize] attribute actually checks!
+                            HttpContext.Current.User = principal;
+                        }
+                    }
+                }
+                catch
+                {
+                    // Decryption failed or ticket tampered with
+                }
+            }
+        }
         protected void Application_Error()
         {
             var ex = Server.GetLastError();

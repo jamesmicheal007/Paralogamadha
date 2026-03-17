@@ -101,7 +101,7 @@
                                         </button>
                                     } else {
                                         <span class="status-badge @(b.StatusId==2?"badge-approved":"badge-rejected") me-auto">@b.StatusLabel</span>
-                                        @if (!string.IsNullOrEmpty(b.ReviewedByName)) {
+                                        if (!string.IsNullOrEmpty(b.ReviewedByName)) {
                                             <span style="font-size:.8rem;color:var(--admin-muted)">Reviewed by @b.ReviewedByName</span>
                                         }
                                     }

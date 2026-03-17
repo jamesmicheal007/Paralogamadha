@@ -1,7 +1,3 @@
-// ============================================================
-//  Paralogamadha.Web / Areas / Admin / AdminAreaRegistration.cs
-// ============================================================
-
 using System.Web.Mvc;
 
 namespace Paralogamadha.Web.Areas.Admin
@@ -13,9 +9,11 @@ namespace Paralogamadha.Web.Areas.Admin
         public override void RegisterArea(AreaRegistrationContext context)
         {
             context.MapRoute(
-                name:     "Admin_default",
-                url:      "admin/{controller}/{action}/{id}",
-                defaults: new { controller = "Dashboard", action = "Index", id = UrlParameter.Optional }
+                name: "Admin_default",
+                url: "Admin/{controller}/{action}/{id}",
+                defaults: new { controller = "Dashboard", action = "Index", id = UrlParameter.Optional },
+                // Add this to prevent route collisions with the main site
+                namespaces: new[] { "Paralogamadha.Web.Areas.Admin.Controllers" }
             );
         }
     }

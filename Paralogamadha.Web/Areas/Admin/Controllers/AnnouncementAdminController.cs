@@ -14,25 +14,37 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
         public AnnouncementAdminController(IUnitOfWork uow, IFileUploadService upload)
             : base(uow, upload) { }
 
-        public ActionResult Index() => View(_uow.Announcements.GetAll());
-        public ActionResult Create() => View(new Announcement());
-        public ActionResult Edit(int id) => View(_uow.Announcements.GetById(id) ?? new Announcement());
+        // Explicitly point to the folder 'Announcements' instead of the default 'AnnouncementAdmin'
+        public ActionResult Index() => View("~/Areas/Admin/Views/Announcements/Index.cshtml", _uow.Announcements.GetAll());
+        // Update these actions to point to the actual folder path
+        public ActionResult Create() => View("~/Areas/Admin/Views/Announcements/Edit.cshtml", new Announcement());
+
+        public ActionResult Edit(int id)
+        {
+            var model = _uow.Announcements.GetById(id);
+            if (model == null) return HttpNotFound();
+
+            return View("~/Areas/Admin/Views/Announcements/Edit.cshtml", model);
+        }
 
         [HttpPost, ValidateAntiForgeryToken, ValidateInput(false)]
         public ActionResult Save(Announcement model)
         {
-            if (!ModelState.IsValid) return View("Edit", model);
+            if (!ModelState.IsValid)
+            {
+                return View("~/Areas/Admin/Views/Announcements/Edit.cshtml", model);
+            }
 
-            // Sanitize rich text body
-            //var sanitizer = new Ganss.Xss.HtmlSanitizer();
-            //model.Body = sanitizer.Sanitize(model.Body ?? "");
             model.Body = SanitizeHtml(model.Body ?? "");
             model.CreatedBy = CurrentUserId.ToString();
 
             var id = _uow.Announcements.Upsert(model);
             LogAudit(model.AnnouncementId == 0 ? "CREATE" : "UPDATE", "announcements", id);
+
             TempData["Success"] = "Announcement saved.";
-            return RedirectToAction("Index");
+
+            // Explicitly redirect to the Index action within the Admin Area
+            return RedirectToAction("Index", "AnnouncementAdmin", new { area = "Admin" });
         }
         [HttpPost]
         public JsonResult Delete(int id)

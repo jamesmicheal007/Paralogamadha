@@ -1,7 +1,3 @@
-// ============================================================
-//  UserAdminController.cs
-// ============================================================
-
 namespace Paralogamadha.Web.Areas.Admin.Controllers
 {
     using Paralogamadha.Core.Interfaces;
@@ -15,47 +11,90 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
         private readonly IAuthService _auth;
 
         public UserAdminController(IUnitOfWork uow, IFileUploadService upload, IAuthService auth)
-            : base(uow, upload) => _auth = auth;
+            : base(uow, upload)
+        {
+            _auth = auth;
+        }
 
-        public ActionResult Index() => View(_uow.Users.GetAll());
+        // 1. Explicit path for Index
+        public ActionResult Index()
+        {
+            return View("~/Areas/Admin/Views/Users/Index.cshtml", _uow.Users.GetAll());
+        }
 
         public ActionResult Create()
         {
             ViewBag.Roles = _uow.Roles.GetAll();
-            return View(new ApplicationUser());
+            return View("~/Areas/Admin/Views/Users/Create.cshtml", new ApplicationUser());
         }
 
         public ActionResult Edit(int id)
         {
             ViewBag.Roles = _uow.Roles.GetAll();
-            return View(_uow.Users.GetAll().FirstOrDefault(u => u.UserId == id));
+            // Using a traditional Find or FirstOrDefault logic
+            var user = _uow.Users.GetAll().FirstOrDefault(u => u.UserId == id);
+
+            if (user == null) return HttpNotFound();
+
+            return View("~/Areas/Admin/Views/Users/Edit.cshtml", user);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Save(ApplicationUser model, string password)
         {
             ViewBag.Roles = _uow.Roles.GetAll();
-            if (!ModelState.IsValid) return View(model.UserId == 0 ? "Create" : "Edit", model);
 
+            if (!ModelState.IsValid)
+            {
+                string viewName = (model.UserId == 0) ? "Create" : "Edit";
+                return View("~/Areas/Admin/Views/Users/" + viewName + ".cshtml", model);
+            }
+
+            // Handle New User Password Hashing
             if (model.UserId == 0)
             {
                 if (string.IsNullOrEmpty(password))
                 {
                     ModelState.AddModelError("", "Password is required for new users.");
-                    return View("Create", model);
+                    return View("~/Areas/Admin/Views/Users/Create.cshtml", model);
                 }
-                model.PasswordHash = _auth.HashPassword(password, out string salt);
+
+                string salt;
+                model.PasswordHash = _auth.HashPassword(password, out salt);
                 model.PasswordSalt = salt;
+                model.IsActive = true; // Default for new users
+            }
+            else
+            {
+                // For Edit: If password is provided, update it; otherwise, keep existing
+                if (!string.IsNullOrEmpty(password))
+                {
+                    string salt;
+                    model.PasswordHash = _auth.HashPassword(password, out salt);
+                    model.PasswordSalt = salt;
+                }
+                else
+                {
+                    // Prevent the Upsert from clearing the password if the form field was empty
+                    var existing = _uow.Users.GetAll().FirstOrDefault(u => u.UserId == model.UserId);
+                    if (existing != null)
+                    {
+                        model.PasswordHash = existing.PasswordHash;
+                        model.PasswordSalt = existing.PasswordSalt;
+                    }
+                }
             }
 
             var id = _uow.Users.Upsert(model);
-            LogAudit(model.UserId == 0 ? "CREATE_USER" : "UPDATE_USER", "users", id);
-            TempData["Success"] = "User saved.";
-            return RedirectToAction("Index");
-        }
 
-        // Needed for LINQ FirstOrDefault in Edit action
-        private System.Linq.Expressions.Expression<System.Func<ApplicationUser, bool>> ById(int id)
-            => u => u.UserId == id;
+            // C# 5 compatible concatenation
+            string auditAction = (model.UserId == 0) ? "CREATE_USER" : "UPDATE_USER";
+            LogAudit(auditAction, "users", id);
+
+            TempData["Success"] = "User saved successfully.";
+
+            // Explicit Area Redirect
+            return RedirectToAction("Index", "UserAdmin", new { area = "Admin" });
+        }
     }
 }

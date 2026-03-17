@@ -19,8 +19,27 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
         {
             get
             {
-                var ticket = ((FormsIdentity)User.Identity).Ticket;
-                return int.TryParse(ticket.UserData, out int id) ? id : 0;
+                if (User.Identity.IsAuthenticated)
+                {
+                    // We can no longer cast to FormsIdentity because we use GenericIdentity in Global.asax
+                    // Instead, we get the ticket directly from the cookie or use the Identity name
+                    var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+                    if (authCookie != null)
+                    {
+                        var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+                        if (ticket != null && !string.IsNullOrEmpty(ticket.UserData))
+                        {
+                            // Data is stored as "UserId|Role"
+                            var data = ticket.UserData.Split('|');
+                            if (data.Length > 0)
+                            {
+                                int.TryParse(data[0], out int id);
+                                return id;
+                            }
+                        }
+                    }
+                }
+                return 0;
             }
         }
 

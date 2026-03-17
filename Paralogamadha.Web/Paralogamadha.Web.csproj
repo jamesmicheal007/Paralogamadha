@@ -361,6 +361,11 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\images\" />
+    <Folder Include="uploads\gallery\" />
+    <Folder Include="uploads\priests\" />
+    <Folder Include="uploads\slides\" />
+    <Folder Include="uploads\songs\" />
+    <Folder Include="uploads\tour\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />

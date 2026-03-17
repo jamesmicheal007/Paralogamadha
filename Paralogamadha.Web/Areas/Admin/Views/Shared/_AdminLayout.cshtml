@@ -21,7 +21,7 @@
     @* ── Sidebar ─────────────────────────────────────────── *@
     <nav class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo">✝</div>
+            <div class="sidebar-logo">&#10013;</div>
             <div class="sidebar-brand">
                 <span class="brand-name">Paralogamadha</span>
                 <span class="brand-sub">Admin Panel</span>
@@ -36,67 +36,69 @@
             var active = ViewBag.ActiveModule as string ?? "";
         }
 
-        <div class="sidebar-menu">
-            <div class="menu-label">Overview</div>
-            <a href="/admin/dashboard" class="menu-item @(active=="dashboard"?"active":"")">
-                <i class='bx bxs-dashboard'></i><span>Dashboard</span>
-            </a>
+    <div class="sidebar-menu">
+        <div class="menu-label">Overview</div>
+        <a href="/admin/dashboard" class="menu-item @(active=="dashboard"?"active":"")">
+            <i class='bx bxs-dashboard'></i><span>Dashboard</span>
+        </a>
 
-            <div class="menu-label mt-2">Content</div>
-            <a href="/admin/heroslideadmin" class="menu-item @(active=="heroslideadmin"?"active":"")">
-                <i class='bx bx-images'></i><span>Hero Slides</span>
-            </a>
-            <a href="/admin/announcementadmin" class="menu-item @(active=="announcementadmin"?"active":"")">
-                <i class='bx bx-bell'></i><span>Announcements</span>
-            </a>
-            <a href="/admin/masstimingadmin" class="menu-item @(active=="masstimingadmin"?"active":"")">
-                <i class='bx bx-time'></i><span>Mass Timing</span>
-            </a>
-            <a href="/admin/dailycontentadmin/feast" class="menu-item @(active=="dailycontentadmin"?"active":"")">
-                <i class='bx bx-sun'></i><span>Daily Content</span>
-            </a>
-            <a href="/admin/priestadmin" class="menu-item @(active=="priestadmin"?"active":"")">
-                <i class='bx bx-user'></i><span>Priests</span>
-            </a>
+        <div class="menu-label mt-2">Content</div>
+        <a href="/admin/heroslideadmin" class="menu-item @(active=="heroslideadmin"?"active":"")">
+            <i class='bx bx-images'></i><span>Hero Slides</span>
+        </a>
+        <a href="/admin/announcementadmin" class="menu-item @(active=="announcementadmin"?"active":"")">
+            <i class='bx bx-bell'></i><span>Announcements</span>
+        </a>
+        <a href="/admin/masstimingadmin" class="menu-item @(active=="masstimingadmin"?"active":"")">
+            <i class='bx bx-time'></i><span>Mass Timing</span>
+        </a>
+        <a href="/admin/dailycontentadmin/feast" class="menu-item @(active=="dailycontentadmin"?"active":"")">
+            <i class='bx bx-sun'></i><span>Daily Content</span>
+        </a>
+        <a href="/admin/priestadmin" class="menu-item @(active=="priestadmin"?"active":"")">
+            <i class='bx bx-user'></i><span>Priests</span>
+        </a>
 
-            <div class="menu-label mt-2">Community</div>
-            <a href="/admin/prayerrequestadmin" class="menu-item @(active=="prayerrequestadmin"?"active":"")">
-                <i class='bx bx-heart'></i>
-                <span>Prayer Requests</span>
-                @if (stats?.PendingPrayers > 0)
-                {
-                    <span class="menu-badge">@stats.PendingPrayers</span>
-                }
-            </a>
-            <a href="/admin/testimonialadmin" class="menu-item @(active=="testimonialadmin"?"active":"")">
-                <i class='bx bx-star'></i>
-                <span>Testimonials</span>
-                @if (stats?.PendingTestimonials > 0)
-                {
-                    <span class="menu-badge">@stats.PendingTestimonials</span>
-                }
-            </a>
+        <div class="menu-label mt-2">Community</div>
+        <a href="/admin/prayerrequestadmin" class="menu-item @(active=="prayerrequestadmin"?"active":"")">
+            <i class='bx bx-heart'></i>
+            <span>Prayer Requests</span>
+            @if (stats?.PendingPrayers > 0)
+            {
+                <span class="menu-badge">@stats.PendingPrayers</span>
+            }
+        </a>
+        <a href="/admin/testimonialadmin" class="menu-item @(active=="testimonialadmin"?"active":"")">
+            <i class='bx bx-star'></i>
+            <span>Testimonials</span>
+            @if (stats?.PendingTestimonials > 0)
+            {
+                <span class="menu-badge">@stats.PendingTestimonials</span>
+            }
+        </a>
 
-            <div class="menu-label mt-2">Media</div>
-            <a href="/admin/galleryadmin" class="menu-item @(active=="galleryadmin"?"active":"")">
-                <i class='bx bx-photo-album'></i><span>Gallery</span>
-            </a>
+        <div class="menu-label mt-2">Media</div>
+        <a href="/admin/galleryadmin" class="menu-item @(active=="galleryadmin"?"active":"")">
+            <i class='bx bx-photo-album'></i><span>Gallery</span>
+        </a>
+        <a href="/admin/songsadmin" class="menu-item @(active=="songsadmin"?"active":"")">
+            <i class='bx bx-time'></i><span>Songs</span>
+        </a>
+        <div class="menu-label mt-2">Operations</div>
+        <a href="/admin/roombookingadmin" class="menu-item @(active=="roombookingadmin"?"active":"")">
+            <i class='bx bx-calendar'></i>
+            <span>Room Bookings</span>
+            @if (stats?.PendingBookings > 0)
+            {
+                <span class="menu-badge">@stats.PendingBookings</span>
+            }
+        </a>
 
-            <div class="menu-label mt-2">Operations</div>
-            <a href="/admin/roombookingadmin" class="menu-item @(active=="roombookingadmin"?"active":"")">
-                <i class='bx bx-calendar'></i>
-                <span>Room Bookings</span>
-                @if (stats?.PendingBookings > 0)
-                {
-                    <span class="menu-badge">@stats.PendingBookings</span>
-                }
-            </a>
-
-            <div class="menu-label mt-2">System</div>
-            <a href="/admin/useradmin" class="menu-item @(active=="useradmin"?"active":"")">
-                <i class='bx bx-group'></i><span>Users</span>
-            </a>
-        </div>
+        <div class="menu-label mt-2">System</div>
+        <a href="/admin/useradmin" class="menu-item @(active=="useradmin"?"active":"")">
+            <i class='bx bx-group'></i><span>Users</span>
+        </a>
+    </div>
 
         <div class="sidebar-footer">
             <a href="/admin/adminaccount/logout" class="menu-item text-danger">

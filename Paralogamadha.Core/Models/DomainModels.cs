@@ -109,6 +109,7 @@ namespace Paralogamadha.Core.Models
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; }
+        public string LanguageName { get; set; }
     }
 
     public class Announcement
@@ -257,6 +258,7 @@ namespace Paralogamadha.Core.Models
         public string GospelRef { get; set; }
         public string LiturgicalColor { get; set; }
         public string Source { get; set; }
+        public int CreatedBy { get; set; }
     }
 
     public class ThoughtOfDay
