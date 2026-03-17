@@ -1,0 +1,59 @@
+@* ============================================================
+   Views/Error/NotFound.cshtml  — 404 Page
+   Self-contained: no _Layout (avoids DB-dependent ViewBag)
+   ============================================================ *@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page Not Found</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f8f9fa;
+            color: #343a40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        .card {
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,.08);
+            padding: 3rem 2.5rem;
+            max-width: 480px;
+            width: 100%;
+        }
+        .code { font-size: 5rem; font-weight: 700; color: #6c757d; line-height: 1; }
+        h1 { font-size: 1.5rem; margin: 1rem 0 .5rem; }
+        p  { color: #6c757d; margin-bottom: 2rem; }
+        a  {
+            display: inline-block;
+            background: #7c3aed;
+            color: #fff;
+            text-decoration: none;
+            padding: .65rem 1.75rem;
+            border-radius: .5rem;
+            font-weight: 500;
+            transition: background .2s;
+        }
+        a:hover { background: #6d28d9; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="code">404</div>
+        <h1>Page Not Found</h1>
+        <p>The page you are looking for does not exist or has been moved.</p>
+        <a href="/">Go to Home</a>
+    </div>
+</body>
+</html>
