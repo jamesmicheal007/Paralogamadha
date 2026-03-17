@@ -7,6 +7,7 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
 {
     using Paralogamadha.Core.Interfaces;
     using Paralogamadha.Core.Models;
+    using System.Text.RegularExpressions;
     using System.Web.Mvc;
 
     public class AnnouncementAdminController : AdminBaseController
@@ -24,8 +25,7 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
             if (!ModelState.IsValid) return View("Edit", model);
 
             // Sanitize rich text body
-            var sanitizer = new Ganss.Xss.HtmlSanitizer();
-            model.Body = sanitizer.Sanitize(model.Body ?? "");
+            model.Body = SanitizeHtml(model.Body ?? "");
             model.CreatedBy = CurrentUserId.ToString();
 
             var id = _uow.Announcements.Upsert(model);
@@ -40,6 +40,12 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
             _uow.Announcements.Delete(id);
             LogAudit("DELETE", "announcements", id);
             return JsonOk(message: "Announcement deleted.");
+        }
+
+        private string SanitizeHtml(string html)
+        {
+            if (string.IsNullOrWhiteSpace(html)) return html;
+            return Regex.Replace(html, @"<script[^>]*>[\s\S]*?</script>", "", RegexOptions.IgnoreCase);
         }
     }
 }
