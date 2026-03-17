@@ -59,5 +59,13 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
                 IpAddress = Request.UserHostAddress
             });
         }
+
+        protected string SanitizeHtml(string html)
+        {
+            if (string.IsNullOrWhiteSpace(html)) return html;
+            return System.Text.RegularExpressions.Regex.Replace(
+                html, @"<script[^>]*>[\s\S]*?</script>", "",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        }
     }
 }

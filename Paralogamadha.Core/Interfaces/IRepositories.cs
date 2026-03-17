@@ -225,7 +225,7 @@ namespace Paralogamadha.Core.Interfaces
         IRoomBookingRepository   RoomBookings   { get; }
         IDonationRepository      Donations      { get; }
         IDashboardRepository     Dashboard      { get; }
-        ISongsRepository Songs { get; }
+        ISongsRepository         Songs          { get; }
     }
 }
 

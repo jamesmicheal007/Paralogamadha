@@ -8,7 +8,7 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
     using Paralogamadha.Core.Interfaces;
     using Paralogamadha.Core.Models;
     using System.Web.Mvc;
-    using System.Text.RegularExpressions;
+
     public class AnnouncementAdminController : AdminBaseController
     {
         public AnnouncementAdminController(IUnitOfWork uow, IFileUploadService upload)
@@ -33,11 +33,6 @@ namespace Paralogamadha.Web.Areas.Admin.Controllers
             LogAudit(model.AnnouncementId == 0 ? "CREATE" : "UPDATE", "announcements", id);
             TempData["Success"] = "Announcement saved.";
             return RedirectToAction("Index");
-        }
-        private string SanitizeHtml(string html)
-        {
-            if (string.IsNullOrWhiteSpace(html)) return html;
-            return Regex.Replace(html, @"<script[^>]*>[\s\S]*?</script>", "", RegexOptions.IgnoreCase);
         }
         [HttpPost]
         public JsonResult Delete(int id)

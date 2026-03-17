@@ -28,7 +28,7 @@ namespace Paralogamadha.Data.Infrastructure
         private IRoomBookingRepository   _roomBookings;
         private IDonationRepository      _donations;
         private IDashboardRepository     _dashboard;
-        private ISongsRepository _songs;
+        private ISongsRepository         _songs;
 
         public IUserRepository          Users          => _users          ??= new UserRepository();
         public IRoleRepository          Roles          => _roles          ??= new RoleRepository();
@@ -49,7 +49,7 @@ namespace Paralogamadha.Data.Infrastructure
         public IRoomBookingRepository   RoomBookings   => _roomBookings   ??= new RoomBookingRepository();
         public IDonationRepository      Donations      => _donations      ??= new DonationRepository();
         public IDashboardRepository     Dashboard      => _dashboard      ??= new DashboardRepository();
-        public ISongsRepository Songs => _songs ??= new SongsRepository();
+        public ISongsRepository         Songs          => _songs          ??= new SongsRepository();
         public void Dispose() { /* Dapper uses short-lived connections; no pooled connection to release */ }
     }
 }
